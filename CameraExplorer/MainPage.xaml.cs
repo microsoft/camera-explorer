@@ -55,6 +55,7 @@ namespace CameraExplorer
             videoBrush.SetSource(_dataContext.Device);
         }
 
+        #region camera parameter printing functions
         void PrintCameraParameters(PhotoCaptureDevice device)
         {
             PrintSensorLocations(device);
@@ -176,11 +177,11 @@ namespace CameraExplorer
 
             System.Diagnostics.Debug.WriteLine("");
         }
+#endregion
 
         private void settingsButton_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
-            //PrintCameraParameters(_device);
         }
 
         private async void captureButton_Click(object sender, EventArgs e)

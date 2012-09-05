@@ -51,7 +51,7 @@
                                             <TextBlock Text="{Binding DisplayName}" Style="{StaticResource PhoneTextTitle2Style}" Width="230" TextWrapping="Wrap" Margin="0"/>
                                         </StackPanel>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding CurrentValue}" Style="{StaticResource PhoneTextTitle2Style}" Width="230" Margin="0"/>
+                                            <TextBlock Text="{Binding CurrentValueAsString}" Style="{StaticResource PhoneTextTitle2Style}" Width="230" Margin="0"/>
                                             <Slider Maximum="{Binding Max}" Minimum="{Binding Min}" Value="{Binding CurrentValue, Mode=TwoWay}" Width="230" Margin="-24,0,0,0"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -63,4 +63,12 @@
             </ListBox>
         </Grid>
     </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True">
+            <shell:ApplicationBarIconButton x:Name="refreshButton" Text="refresh"
+                IconUri="Assets/Icons/appbar.refresh.rest.png" Click="refreshButton_Click"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
+    
 </phone:PhoneApplicationPage>

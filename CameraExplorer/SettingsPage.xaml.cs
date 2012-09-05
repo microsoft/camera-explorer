@@ -27,5 +27,10 @@ namespace CameraExplorer
 
             _dataContext.Settings.Device = _dataContext.Device;
         }
+
+        private void refreshButton_Click(object sender, EventArgs e)
+        {
+            _dataContext.Settings.Refresh();
+        }
     }
 }

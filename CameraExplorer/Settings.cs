@@ -9,8 +9,10 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
-    class Settings
+    class Settings : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public class Parameter
         {
             public string DisplayName { get; set; }
@@ -20,8 +22,8 @@ namespace CameraExplorer
         {
             public event PropertyChangedEventHandler PropertyChanged;
 
-            int _min;
-            public int Min
+            object _min;
+            public object Min
             {
                 get
                 {
@@ -42,8 +44,8 @@ namespace CameraExplorer
                 }
             }
 
-            int _max;
-            public int Max
+            object _max;
+            public object Max
             {
                 get
                 {
@@ -66,18 +68,51 @@ namespace CameraExplorer
 
             public Action Action { get; set; }
 
-            int _currentValue;
-            public int CurrentValue
+            object _currentValue;
+            public object CurrentValue
             {
                 get {
-                    return _currentValue;
+                    if (_currentValue != null)
+                    {
+                        return _currentValue;
+                    }
+                    else
+                    {
+                        return _min;
+                    }
                 }
 
                 set
                 {
                     if (_currentValue != value)
                     {
-                        _currentValue = value;
+                        Type t;
+
+                        if (_currentValue != null)
+                        {
+                            t = _currentValue.GetType();
+                        }
+                        else if (_min != null)
+                        {
+                            t = _min.GetType();
+                        }
+                        else if (_max != null)
+                        {
+                            t = _max.GetType();
+                        }
+                        else
+                        {
+                            t = null;
+                        }
+
+                        if (t != null)
+                        {
+                            _currentValue = Convert.ChangeType(value, t);
+                        }
+                        else
+                        {
+                            _currentValue = value;
+                        }
 
                         if (Action != null)
                         {
@@ -87,12 +122,36 @@ namespace CameraExplorer
                         if (PropertyChanged != null)
                         {
                             PropertyChanged(this, new PropertyChangedEventArgs("CurrentValue"));
+                            PropertyChanged(this, new PropertyChangedEventArgs("CurrentValueAsString"));
                         }
                     }
                 }
             }
 
-            public string UnitDisplayName { get; set; }
+            public string CurrentValueAsString
+            {
+                get
+                {
+                    if (_currentValue != null)
+                    {
+                        if (Unit != "")
+                        {
+                            return _currentValue.ToString() + " " + Unit;
+                        }
+                        else
+                        {
+                            return _currentValue.ToString();
+                        }
+                    }
+                    else
+                    {
+                        return "Not set";
+                    }
+                }
+            }
+
+
+            public string Unit { get; set; }
         }
 
         public class ArrayParameter : Parameter, INotifyPropertyChanged
@@ -157,7 +216,15 @@ namespace CameraExplorer
 
             set
             {
-                _parameters = value;
+                if (_parameters != null)
+                {
+                    _parameters = value;
+
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs("Parameters"));
+                    }
+                }
             }
         }
 
@@ -180,7 +247,29 @@ namespace CameraExplorer
                     {
                         PhotoCaptureDeviceParser.Parse(_device, _parameters);
                     }
+
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs("Device"));
+                    }
                 }
+            }
+        }
+
+        public void Refresh()
+        {
+            int count = _parameters.Count;
+
+            _parameters.Clear();
+
+            if (_device != null)
+            {
+                PhotoCaptureDeviceParser.Parse(_device, _parameters);
+            }
+
+            if ((count > 0 || _parameters.Count > 0) && PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs("Parameters"));
             }
         }
     }

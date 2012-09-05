@@ -30,10 +30,9 @@ namespace CameraExplorer
         // KnownCameraPhotoProperties.ManualWhiteBalance
         // KnownCameraPhotoProperties.SceneMode
         // KnownCameraPhotoProperties.WhiteBalancePreset
-
         // KnownCameraGeneralProperties.AutoFocusRange
-        // KnownCameraGeneralProperties.EncodeWithOrientation
 
+        // KnownCameraGeneralProperties.EncodeWithOrientation
         // KnownCameraGeneralProperties.IsShutterSoundEnabledByUser
         // KnownCameraGeneralProperties.IsShutterSoundRequiredForRegion
         // KnownCameraGeneralProperties.ManualFocusPosition
@@ -185,7 +184,59 @@ namespace CameraExplorer
 
         static Settings.Parameter ParseExposureTime(PhotoCaptureDevice device)
         {
-            return ParseRangeProperty(device, KnownCameraPhotoProperties.ExposureTime, "Exposure time", "us");
+            List<Tuple<UInt32, string>> exposureTimes = new List<Tuple<UInt32, string>>();
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 16000, "1/16000 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 8000, "1/8000 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 4000, "1/4000 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 2000, "1/2000 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 1000, "1/1000 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 500, "1/500 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 250, "1/250 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 125, "1/125 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 60, "1/60 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 30, "1/30 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 15, "1/15 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 8, "1/8 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 4, "1/4 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000 / 2 , "1/2 s"));
+            exposureTimes.Add(new Tuple<UInt32, string>(1000000, "1 s"));
+
+            Func<object, object, IReadOnlyList<object>> vtaf = (object min, object max) =>
+            {
+                UInt32 minUInt32 = (UInt32)min;
+                UInt32 maxUInt32 = (UInt32)max;
+
+                List<object> list = new List<object>();
+
+                foreach (Tuple<UInt32, string> i in exposureTimes)
+                {
+                    if (i.Item1 >= minUInt32 && i.Item1 <= maxUInt32)
+                    {
+                        list.Add(i.Item1);
+                    }
+                }
+
+                return list;
+            };
+
+            Func<object, string> vnf = (object value) =>
+            {
+                UInt32 valueUInt32 = (UInt32)value;
+                string name = null;
+
+                foreach (Tuple<UInt32, string> i in exposureTimes)
+                {
+                    if (valueUInt32 == i.Item1)
+                    {
+                        name = i.Item2;
+                        break;
+                    }
+                }
+
+                return name;
+            };
+
+            return ParseRangePropertyAsArray(device, KnownCameraPhotoProperties.ExposureTime, "Exposure time", vtaf, vnf);
         }
 
         static Settings.Parameter ParseExposureCompensation(PhotoCaptureDevice device)
@@ -238,7 +289,7 @@ namespace CameraExplorer
 
         static Settings.Parameter ParseIso(PhotoCaptureDevice device)
         {
-            Func<object, object, IReadOnlyList<object>> f = (object min, object max) =>
+            Func<object, object, IReadOnlyList<object>> vtaf = (object min, object max) =>
             {
                 UInt32 minUInt32 = (UInt32)min;
                 UInt32 maxUInt32 = (UInt32)max;
@@ -256,7 +307,12 @@ namespace CameraExplorer
                 return list;
             };
 
-            return ParseRangePropertyAsArray(device, KnownCameraPhotoProperties.Iso, "ISO", f);
+            Func<object, string> vnf = (object value) =>
+                {
+                    return value.ToString();
+                };
+
+            return ParseRangePropertyAsArray(device, KnownCameraPhotoProperties.Iso, "ISO", vtaf, vnf);
         }
 
         static Settings.Parameter ParseLockedAutofocusParameters(PhotoCaptureDevice device)
@@ -292,7 +348,7 @@ namespace CameraExplorer
                 CameraSceneMode v = (CameraSceneMode)(UInt32)o;
 
                 if (v == CameraSceneMode.Auto)
-                    return "None";
+                    return "Auto";
                 if (v == CameraSceneMode.Macro)
                     return "Macro";
                 if (v == CameraSceneMode.Portrait)
@@ -308,7 +364,7 @@ namespace CameraExplorer
                 if (v == CameraSceneMode.Sunset)
                     return "Sunset";
                 if (v == CameraSceneMode.Candlelight)
-                    return "Candle light";
+                    return "Candlelight";
                 if (v == CameraSceneMode.Landscape)
                     return "Landscape";
                 if (v == CameraSceneMode.NightPortrait)
@@ -339,7 +395,7 @@ namespace CameraExplorer
                 if (v == WhiteBalancePreset.Tungsten)
                     return "Tungsten";
                 if (v == WhiteBalancePreset.Candlelight)
-                    return "Candle light";
+                    return "Candlelight";
                 else
                     return "Unknown";
             };
@@ -400,11 +456,11 @@ namespace CameraExplorer
             return parameter;
         }
 
-        static Settings.Parameter ParseRangeProperty(PhotoCaptureDevice device, Guid guid, string displayName, string unitDisplayName)
+        static Settings.Parameter ParseRangeProperty(PhotoCaptureDevice device, Guid guid, string displayName, string unit)
         {
             Settings.RangeParameter parameter = new Settings.RangeParameter();
             parameter.DisplayName = displayName;
-            parameter.UnitDisplayName = unitDisplayName;
+            parameter.Unit = unit;
 
             CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(device.SensorLocation, guid);
             object value = device.GetProperty(guid);
@@ -414,12 +470,9 @@ namespace CameraExplorer
                 throw new Exception("Guid=" + guid + " range min=" + range.Min + " is equal to range max=" + range.Max);
             }
 
-            unchecked
-            {
-                parameter.Min = (int)(UInt32)range.Min; // todo change to parameter value template
-                parameter.Max = (int)(UInt32)range.Max; // todo change to parameter value template
-                parameter.CurrentValue = value != null ? (int)(UInt32)value : parameter.Min;
-            }
+            parameter.Min = range.Min;
+            parameter.Max = range.Max;
+            parameter.CurrentValue = value;
 
             parameter.Action = () =>
                 {
@@ -429,7 +482,8 @@ namespace CameraExplorer
             return parameter;
         }
 
-        static Settings.Parameter ParseRangePropertyAsArray(PhotoCaptureDevice device, Guid guid, string displayName, Func<object, object, IReadOnlyList<object>> rangeToArrayFunc)
+        static Settings.Parameter ParseRangePropertyAsArray(PhotoCaptureDevice device, Guid guid, string displayName,
+            Func<object, object, IReadOnlyList<object>> rangeToArrayFunc, Func<object, string> valueToNameFunc)
         {
             Settings.ArrayParameter parameter = new Settings.ArrayParameter();
             parameter.DisplayName = displayName;
@@ -444,7 +498,7 @@ namespace CameraExplorer
                 object possibleValue = possibleValues[i];
 
                 Settings.ArrayParameter.Value arrayValue = new Settings.ArrayParameter.Value();
-                arrayValue.DisplayName = possibleValue.ToString();
+                arrayValue.DisplayName = valueToNameFunc(possibleValue);
                 arrayValue.Action = () =>
                 {
                     device.SetProperty(guid, possibleValue);
