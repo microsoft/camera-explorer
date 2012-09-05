@@ -432,6 +432,12 @@ namespace CameraExplorer
             parameter.DisplayName = displayName;
 
             IReadOnlyList<object> possibleValues = PhotoCaptureDevice.GetSupportedPropertyValues(device.SensorLocation, guid);
+
+            if (possibleValues.Count <= 1)
+            {
+                throw new Exception("Guid=" + guid + " contains " + possibleValues.Count + " possible values");
+            }
+
             object value = device.GetProperty(guid);
 
             for (int i = 0; i < possibleValues.Count; i++)

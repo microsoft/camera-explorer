@@ -197,5 +197,39 @@ namespace CameraExplorer
             MediaLibrary library = new MediaLibrary();
             Picture picture = library.SavePictureToCameraRoll("Camera Explorer", stream);
         }
+
+        private async void sensorButton_Click(object sender, EventArgs e)
+        {
+            videoBrush.Opacity = 0.25;
+
+            ApplicationBar.IsVisible = false;
+
+            CameraSensorLocation currentSensorLocation = _dataContext.Device.SensorLocation;
+
+            _dataContext.UnitializeCamera();
+
+            IReadOnlyList<CameraSensorLocation> sensorLocations = PhotoCaptureDevice.AvailableSensorLocations;
+
+            if (currentSensorLocation == sensorLocations[1])
+            {
+                await _dataContext.InitializeCamera(sensorLocations[0]);
+            }
+            else
+            {
+                await _dataContext.InitializeCamera(sensorLocations[1]);
+            }
+
+            ApplicationBar.IsVisible = true;
+
+            videoBrush.RelativeTransform = new CompositeTransform()
+            {
+                CenterX = 0.5,
+                CenterY = 0.5,
+                Rotation = _dataContext.Device.SensorRotationInDegrees
+            };
+
+            videoBrush.SetSource(_dataContext.Device);
+            videoBrush.Opacity = 1;
+        }
     }
 }
