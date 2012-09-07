@@ -32,17 +32,25 @@ namespace CameraExplorer
             DataContext = _dataContext;
         }
 
-        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        void SetButtonsEnabled(bool enabled)
+        {
+            foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
+            {
+                b.IsEnabled = enabled;
+            }
+        }
+
+        protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
 
             if (_dataContext.Device == null)
             {
-                ApplicationBar.IsVisible = false;
+                SetButtonsEnabled(false);
 
                 await _dataContext.InitializeCamera(CameraSensorLocation.Back);
 
-                ApplicationBar.IsVisible = true;
+                SetButtonsEnabled(true);
             }
 
             videoBrush.RelativeTransform = new CompositeTransform()
@@ -149,7 +157,7 @@ namespace CameraExplorer
                 
                 System.Diagnostics.Debug.WriteLine(name + " is a range " + range.Min + "..." + range.Max + " with current value " + valueString);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 isRange = false;
             }
@@ -169,7 +177,7 @@ namespace CameraExplorer
                         System.Diagnostics.Debug.WriteLine("    " + values[i].ToString());
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     System.Diagnostics.Debug.WriteLine("Unable to read " + name);
                 }
@@ -202,7 +210,7 @@ namespace CameraExplorer
         {
             videoBrush.Opacity = 0.25;
 
-            ApplicationBar.IsVisible = false;
+            SetButtonsEnabled(false);
 
             CameraSensorLocation currentSensorLocation = _dataContext.Device.SensorLocation;
 
@@ -219,8 +227,6 @@ namespace CameraExplorer
                 await _dataContext.InitializeCamera(sensorLocations[1]);
             }
 
-            ApplicationBar.IsVisible = true;
-
             videoBrush.RelativeTransform = new CompositeTransform()
             {
                 CenterX = 0.5,
@@ -230,6 +236,8 @@ namespace CameraExplorer
 
             videoBrush.SetSource(_dataContext.Device);
             videoBrush.Opacity = 1;
+
+            SetButtonsEnabled(true);
         }
     }
 }

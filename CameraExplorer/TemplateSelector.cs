@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace CameraExplorer
@@ -18,6 +7,7 @@ namespace CameraExplorer
     {
         public DataTemplate ArrayParameterTemplate { get; set; }
         public DataTemplate RangeParameterTemplate { get; set; }
+        public DataTemplate UnsupportedParameterTemplate { get; set; }
 
         protected override void OnContentChanged(object oldContent, object newContent)
         {
@@ -28,17 +18,34 @@ namespace CameraExplorer
 
         public DataTemplate SelectTemplate(object item)
         {
-            if (item is Settings.ArrayParameter)
+            if ((item as Parameter).Supported)
             {
-                return ArrayParameterTemplate;
-            }
-            else if (item is Settings.RangeParameter)
-            {
-                return RangeParameterTemplate;
+                if (item is IsoParameter ||
+                    item is SceneModeParameter ||
+                    item is FlashModeParameter ||
+                    item is WhiteBalancePresetParameter ||
+                    item is AutoFocusRangeParameter ||
+                    item is FocusIlluminationModeParameter ||
+                    item is ExposureTimeParameter ||
+                    item is PreviewResolutionParameter ||
+                    item is CaptureResolutionParameter ||
+                    item is ExposureCompensationParameter)
+                {
+                    return ArrayParameterTemplate;
+                }
+                else if (item is ManualWhiteBalanceParameter ||
+                    item is FlashPowerParameter)
+                {
+                    return RangeParameterTemplate;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
-                return null;
+                return UnsupportedParameterTemplate;
             }
         }
     }
