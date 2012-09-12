@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
@@ -14,13 +17,15 @@ namespace CameraExplorer
         public event PropertyChangedEventHandler PropertyChanged;
 
         static DataContext _singleton;
-
-        public static CameraExplorer.DataContext Singleton()
+        public static CameraExplorer.DataContext Singleton
         {
-            if (_singleton == null)
-                _singleton = new CameraExplorer.DataContext();
+            get
+            {
+                if (_singleton == null)
+                    _singleton = new CameraExplorer.DataContext();
 
-            return _singleton;
+                return _singleton;
+            }
         }
 
         Settings _settings = null;
@@ -49,11 +54,22 @@ namespace CameraExplorer
                 {
                     _device = value;
 
+                    Settings.Refresh();
+
                     if (PropertyChanged != null)
                     {
                         PropertyChanged(this, new PropertyChangedEventArgs("Device"));
                     }
                 }
+            }
+        }
+
+        BitmapImage  _image = new BitmapImage();
+        public BitmapImage Image
+        {
+            get
+            {
+                return _image;
             }
         }
 
@@ -63,10 +79,14 @@ namespace CameraExplorer
             Windows.Foundation.Size previewResolution = new Windows.Foundation.Size(640, 480);
             Windows.Foundation.Size captureResolution = new Windows.Foundation.Size(640, 480);
 
-            Device = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
+            PhotoCaptureDevice d = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
 
-            await Device.SetPreviewResolutionAsync(previewResolution);
-            await Device.SetCaptureResolutionAsync(captureResolution);
+            await d.SetPreviewResolutionAsync(previewResolution);
+            await d.SetCaptureResolutionAsync(captureResolution);
+
+            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorRotationInDegrees);
+
+            Device = d;
         }
 
         public void UnitializeCamera()

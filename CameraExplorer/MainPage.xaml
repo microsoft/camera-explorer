@@ -31,6 +31,23 @@
                     <VideoBrush x:Name="videoBrush"/>
                 </Canvas.Background>
             </Canvas>
+
+            <ComboBox ItemsSource="{Binding Settings.Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <local:OverlayTemplateSelector Content="{Binding}">
+                            <local:OverlayTemplateSelector.ParameterWithoutOverlayTemplate>
+                                <DataTemplate/>
+                            </local:OverlayTemplateSelector.ParameterWithoutOverlayTemplate>
+                                <local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
+                                <DataTemplate>
+                                    <Image Source="{Binding Image}" Width="48" Height="48" Margin="0,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                                </local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
+                        </local:OverlayTemplateSelector>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
         </Grid>
     </Grid>
     
@@ -39,7 +56,7 @@
             <shell:ApplicationBarIconButton x:Name="captureButton" Text="capture"
                 IconUri="Assets/Icons/appbar.feature.camera.rest.png" Click="captureButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="sensorButton" Text="sensor"
-                IconUri="Assets/Icons/appbar.refresh.rest.png" Click="sensorButton_Click"/>
+                IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="settingsButton" Text="settings"
                 IconUri="Assets/Icons/appbar.feature.settings.rest.png" Click="settingsButton_Click"/>
         </shell:ApplicationBar>

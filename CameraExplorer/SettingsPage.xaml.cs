@@ -17,15 +17,13 @@ namespace CameraExplorer
 {
     public partial class SettingsPage : PhoneApplicationPage
     {
-        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton();
+        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
 
         public SettingsPage()
         {
             InitializeComponent();
 
             DataContext = _dataContext;
-
-            _dataContext.Settings.Device = _dataContext.Device;
         }
 
         private void refreshButton_Click(object sender, EventArgs e)

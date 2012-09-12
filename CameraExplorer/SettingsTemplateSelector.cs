@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace CameraExplorer
 {
-    public class TemplateSelector : ContentControl
+    public class SettingsTemplateSelector : ContentControl
     {
         public DataTemplate ArrayParameterTemplate { get; set; }
         public DataTemplate RangeParameterTemplate { get; set; }
@@ -28,13 +28,13 @@ namespace CameraExplorer
                     item is FocusIlluminationModeParameter ||
                     item is ExposureTimeParameter ||
                     item is PreviewResolutionParameter ||
-                    item is CaptureResolutionParameter ||
-                    item is ExposureCompensationParameter)
+                    item is CaptureResolutionParameter)
                 {
                     return ArrayParameterTemplate;
                 }
                 else if (item is ManualWhiteBalanceParameter ||
-                    item is FlashPowerParameter)
+                    item is FlashPowerParameter ||
+                    item is ExposureCompensationParameter)
                 {
                     return RangeParameterTemplate;
                 }

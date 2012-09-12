@@ -29,19 +29,19 @@
             <ListBox ItemsSource="{Binding Settings.Parameters}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <local:TemplateSelector Content="{Binding}">
-                            <local:TemplateSelector.UnsupportedParameterTemplate>
+                        <local:SettingsTemplateSelector Content="{Binding}">
+                            <local:SettingsTemplateSelector.UnsupportedParameterTemplate>
                                 <DataTemplate/>
-                            </local:TemplateSelector.UnsupportedParameterTemplate>
-                            <local:TemplateSelector.ArrayParameterTemplate>
+                            </local:SettingsTemplateSelector.UnsupportedParameterTemplate>
+                            <local:SettingsTemplateSelector.ArrayParameterTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,12,0,12" Orientation="Horizontal">
                                         <TextBlock Text="{Binding Name}" Style="{StaticResource PhoneTextTitle2Style}" Width="230" TextWrapping="Wrap" Margin="0"/>
-                                        <ComboBox ItemsSource="{Binding}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" DisplayMemberPath="Name" Width="230"/>
+                                        <ComboBox ItemsSource="{Binding}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" DisplayMemberPath="Name" IsEnabled="{Binding Modifiable}"  Width="230"/>
                                     </StackPanel>
                                 </DataTemplate>
-                            </local:TemplateSelector.ArrayParameterTemplate>
-                            <local:TemplateSelector.RangeParameterTemplate>
+                            </local:SettingsTemplateSelector.ArrayParameterTemplate>
+                            <local:SettingsTemplateSelector.RangeParameterTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="0,12,0,12" Orientation="Horizontal">
                                         <StackPanel>
@@ -53,8 +53,8 @@
                                         </StackPanel>
                                     </StackPanel>
                                 </DataTemplate>
-                            </local:TemplateSelector.RangeParameterTemplate>
-                        </local:TemplateSelector>
+                            </local:SettingsTemplateSelector.RangeParameterTemplate>
+                        </local:SettingsTemplateSelector>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

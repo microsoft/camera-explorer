@@ -18,12 +18,13 @@ using Windows.Phone.Media.Capture;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Media;
 using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace CameraExplorer
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton();
+        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
 
         public MainPage()
         {
@@ -192,20 +193,6 @@ namespace CameraExplorer
             NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
         }
 
-        private async void captureButton_Click(object sender, EventArgs e)
-        {
-            MemoryStream stream = new MemoryStream();
-
-            CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
-            sequence.Frames[0].CaptureStream = stream.AsOutputStream();
-
-            await _dataContext.Device.PrepareCaptureSequenceAsync(sequence);
-            await sequence.StartCaptureAsync();
-
-            MediaLibrary library = new MediaLibrary();
-            Picture picture = library.SavePictureToCameraRoll("Camera Explorer", stream);
-        }
-
         private async void sensorButton_Click(object sender, EventArgs e)
         {
             videoBrush.Opacity = 0.25;
@@ -236,6 +223,28 @@ namespace CameraExplorer
 
             videoBrush.SetSource(_dataContext.Device);
             videoBrush.Opacity = 1;
+
+            SetButtonsEnabled(true);
+        }
+
+        private async void captureButton_Click(object sender, EventArgs e)
+        {
+            SetButtonsEnabled(false);
+
+            MemoryStream stream = new MemoryStream();
+
+            CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
+            sequence.Frames[0].CaptureStream = stream.AsOutputStream();
+
+            await _dataContext.Device.PrepareCaptureSequenceAsync(sequence);
+            await sequence.StartCaptureAsync();
+
+            //MediaLibrary library = new MediaLibrary();
+            //Picture picture = library.SavePictureToCameraRoll("CameraExplorer.jpg", stream);
+
+            _dataContext.Image.SetSource(stream);
+
+            NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
 
             SetButtonsEnabled(true);
         }

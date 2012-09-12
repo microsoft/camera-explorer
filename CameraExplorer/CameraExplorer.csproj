@@ -93,12 +93,16 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OverlayTemplateSelector.cs" />
     <Compile Include="DataContext.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Parameter.cs" />
+    <Compile Include="PreviewPage.xaml.cs">
+      <DependentUpon>PreviewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\AppResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -109,7 +113,7 @@
     <Compile Include="SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TemplateSelector.cs" />
+    <Compile Include="SettingsTemplateSelector.cs" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -119,6 +123,9 @@
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="PreviewPage.xaml">
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="SettingsPage.xaml">
       <SubType>Designer</SubType>
@@ -132,11 +139,49 @@
     <Content Include="Assets\Icons\appbar.refresh.rest.png" />
     <Content Include="Assets\Icons\appbar.feature.camera.rest.png" />
     <Content Include="Assets\Icons\appbar.feature.settings.rest.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.16000.png" />
     <None Include="SplashScreenImage.jpg" />
     <Content Include="Assets\AlignmentGrid.png" />
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\Icons\overlay.exposuretime.1.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.1000.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.125.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.15.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.2.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.2000.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.250.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.30.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.4.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.4000.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.500.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.60.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.8.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.8000.png" />
+    <Content Include="Assets\Icons\overlay.flashmode.auto.png" />
+    <Content Include="Assets\Icons\overlay.flashmode.off.png" />
+    <Content Include="Assets\Icons\overlay.flashmode.on.png" />
+    <Content Include="Assets\Icons\overlay.flashmode.redeyereduction.png" />
+    <Content Include="Assets\Icons\appbar.sensor.png" />
+    <Content Include="Assets\Icons\overlay.iso.100.png" />
+    <Content Include="Assets\Icons\overlay.iso.1600.png" />
+    <Content Include="Assets\Icons\overlay.iso.200.png" />
+    <Content Include="Assets\Icons\overlay.iso.3200.png" />
+    <Content Include="Assets\Icons\overlay.iso.400.png" />
+    <Content Include="Assets\Icons\overlay.iso.800.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.auto.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.backlit.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.beach.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.candlelight.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.landscape.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.macro.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.night.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.nightportrait.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.portrait.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.snow.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.sport.png" />
+    <Content Include="Assets\Icons\overlay.scenemode.sunset.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -144,12 +189,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\Tiles\FlipCycleTileSmall.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\IconicTileMediumLarge.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Assets\Tiles\IconicTileSmall.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
