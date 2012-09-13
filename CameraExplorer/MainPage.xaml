@@ -59,6 +59,8 @@
                 IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="settingsButton" Text="settings"
                 IconUri="Assets/Icons/appbar.feature.settings.rest.png" Click="settingsButton_Click"/>
+            <shell:ApplicationBarIconButton x:Name="aboutButton" Text="about"
+                IconUri="Assets/Icons/questionmark.png" Click="aboutButton_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 

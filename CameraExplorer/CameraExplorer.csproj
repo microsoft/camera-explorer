@@ -90,16 +90,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AboutPage.xaml.cs">
+      <SubType>Code</SubType>
+      <DependentUpon>AboutPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ArrayParameter.cs" />
+    <Compile Include="Parameter.cs" />
     <Compile Include="OverlayTemplateSelector.cs" />
     <Compile Include="DataContext.cs" />
     <Compile Include="LocalizedStrings.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Parameter.cs" />
+    <Compile Include="RangeParameter.cs" />
     <Compile Include="PreviewPage.xaml.cs">
       <DependentUpon>PreviewPage.xaml</DependentUpon>
     </Compile>
@@ -120,6 +126,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </ApplicationDefinition>
+    <Page Include="AboutPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -182,6 +191,7 @@
     <Content Include="Assets\Icons\overlay.scenemode.snow.png" />
     <Content Include="Assets\Icons\overlay.scenemode.sport.png" />
     <Content Include="Assets\Icons\overlay.scenemode.sunset.png" />
+    <Content Include="Assets\Icons\questionmark.png" />
     <Content Include="Assets\Icons\save.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

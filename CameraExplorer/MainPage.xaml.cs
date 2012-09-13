@@ -121,5 +121,10 @@ namespace CameraExplorer
 
             SetButtonsEnabled(true);
         }
+
+        private void aboutButton_Click(object sender, EventArgs e)
+        {
+            NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
     }
 }
