@@ -182,6 +182,7 @@
     <Content Include="Assets\Icons\overlay.scenemode.snow.png" />
     <Content Include="Assets\Icons\overlay.scenemode.sport.png" />
     <Content Include="Assets\Icons\overlay.scenemode.sunset.png" />
+    <Content Include="Assets\Icons\save.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

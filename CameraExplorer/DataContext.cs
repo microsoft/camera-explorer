@@ -64,14 +64,7 @@ namespace CameraExplorer
             }
         }
 
-        BitmapImage  _image = new BitmapImage();
-        public BitmapImage Image
-        {
-            get
-            {
-                return _image;
-            }
-        }
+        public MemoryStream ImageStream { get; set; }
 
         public async Task InitializeCamera(CameraSensorLocation sensorLocation)
         {

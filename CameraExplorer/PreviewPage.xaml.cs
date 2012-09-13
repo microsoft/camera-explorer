@@ -7,12 +7,16 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using Microsoft.Xna.Framework.Media;
+using System.Windows.Media.Imaging;
 
 namespace CameraExplorer
 {
     public partial class PreviewPage : PhoneApplicationPage
     {
         CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
+
+        BitmapImage _bitmap = new BitmapImage();
 
         public PreviewPage()
         {
@@ -23,9 +27,27 @@ namespace CameraExplorer
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            image.Source = _dataContext.Image;
+            _bitmap.SetSource(_dataContext.ImageStream);
+
+            image.Source = _bitmap;
 
             base.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            _dataContext.ImageStream = null;
+
+            base.OnNavigatingFrom(e);
+        }
+
+        private void saveButton_Click(object sender, EventArgs e)
+        {
+            MediaLibrary library = new MediaLibrary();
+
+            library.SavePictureToCameraRoll("CameraExplorer", _dataContext.ImageStream);
+
+            NavigationService.GoBack();
         }
     }
 }
