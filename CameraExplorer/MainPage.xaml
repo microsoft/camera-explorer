@@ -39,11 +39,11 @@
                             <local:OverlayTemplateSelector.ParameterWithoutOverlayTemplate>
                                 <DataTemplate/>
                             </local:OverlayTemplateSelector.ParameterWithoutOverlayTemplate>
-                                <local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
+                            <local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
                                 <DataTemplate>
-                                    <Image Source="{Binding Image}" Width="48" Height="48" Margin="0,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+                                    <Image Source="{Binding ImageSource}" Width="48" Height="48" Margin="0,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
                                 </DataTemplate>
-                                </local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
+                            </local:OverlayTemplateSelector.ParameterWithOverlayTemplate>
                         </local:OverlayTemplateSelector>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>

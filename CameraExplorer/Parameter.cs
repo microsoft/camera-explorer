@@ -12,18 +12,25 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
-    public abstract class Parameter
+    public abstract class Parameter : INotifyPropertyChanged
     {
-        protected PhotoCaptureDevice _device;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        bool _overlay;
 
         protected Parameter(PhotoCaptureDevice device, string name, bool overlay)
         {
             _device = device;
             _name = name;
+            _overlay = overlay;
+        }
 
-            if (overlay)
+        PhotoCaptureDevice _device;
+        public PhotoCaptureDevice Device
+        {
+            get
             {
-                _image = "";
+                return _device;
             }
         }
 
@@ -34,32 +41,81 @@ namespace CameraExplorer
             {
                 return _name;
             }
-        }
 
-        protected string _image;
-        public string Image
-        {
-            get
+            protected set
             {
-                return _image;
+                _name = value;
+
+                NotifyPropertyChanged("Name");
             }
         }
 
-        protected bool _supported = true;
+        string _imageSource;
+        public string ImageSource
+        {
+            get
+            {
+                if (_imageSource == null && _overlay)
+                {
+                    return "";
+                }
+                else
+                {
+                    return _imageSource;
+                }
+            }
+
+            protected set
+            {
+                if (_overlay)
+                {
+                    if (value == null)
+                    {
+                        _imageSource = "";
+                    }
+                    else
+                    {
+                        _imageSource = value;
+                    }
+
+                    NotifyPropertyChanged("ImageSource");
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+        }
+
+        bool _supported = true;
         public bool Supported
         {
             get
             {
                 return _supported;
             }
+
+            protected set
+            {
+                _supported = value;
+
+                NotifyPropertyChanged("Supported");
+            }
         }
 
-        protected bool _modifiable = true;
+        bool _modifiable = true;
         public bool Modifiable
         {
             get
             {
                 return _modifiable;
+            }
+
+            protected set
+            {
+                _modifiable = value;
+
+                NotifyPropertyChanged("Modifiable");
             }
         }
 
@@ -67,29 +123,34 @@ namespace CameraExplorer
         {
             throw new NotImplementedException();
         }
+
+        protected void NotifyPropertyChanged(string name)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(name));
+            }
+        }
     }
 
-    public abstract class RangeParameter<T> : Parameter, INotifyPropertyChanged
+    public abstract class RangeParameter<T> : Parameter
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         protected Guid _guid;
         protected CameraCapturePropertyRange _range;
 
         protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name, bool overlay = false)
             : base(device, name, overlay)
         {
-            _device = device;
             _guid = guid;
             _range = PhotoCaptureDevice.GetSupportedPropertyRange(device.SensorLocation, guid);
 
-            if (_device.GetProperty(guid) == null)
+            if (device.GetProperty(guid) == null)
             {
                 SetDefault();
             }
 
-            _supported = _range != null;
-            _modifiable = _supported && !_range.Min.Equals(_range.Max);
+            Supported = _range != null;
+            Modifiable = Supported && !_range.Min.Equals(_range.Max);
         }
 
         public T Minimum
@@ -112,17 +173,14 @@ namespace CameraExplorer
         {
             get
             {
-                return (T)_device.GetProperty(_guid);
+                return (T)Device.GetProperty(_guid);
             }
 
             set
             {
-                _device.SetProperty(_guid, (T)value);
+                Device.SetProperty(_guid, (T)value);
 
-                if (PropertyChanged != null)
-                {
-                    PropertyChanged(this, new PropertyChangedEventArgs("Value"));
-                }
+                NotifyPropertyChanged("Value");
             }
         }
     }
@@ -136,7 +194,7 @@ namespace CameraExplorer
 
         protected override void SetDefault()
         {
-            _device.SetProperty(KnownCameraPhotoProperties.FlashPower, Minimum);
+            Device.SetProperty(KnownCameraPhotoProperties.FlashPower, Minimum);
         }
     }
 
@@ -149,7 +207,7 @@ namespace CameraExplorer
 
         protected override void SetDefault()
         {
-            _device.SetProperty(KnownCameraPhotoProperties.ManualWhiteBalance, Minimum);
+            Device.SetProperty(KnownCameraPhotoProperties.ManualWhiteBalance, Minimum);
         }
     }
 
@@ -207,11 +265,11 @@ namespace CameraExplorer
 
     public class ArrayParameterItem<T>
     {
-        public ArrayParameterItem(T value, string name, string image = null)
+        public ArrayParameterItem(T value, string name, string imageSource = null)
         {
             _value = value;
             _name = name;
-            _image = image;
+            _imageSource = imageSource;
         }
 
         T _value;
@@ -232,23 +290,29 @@ namespace CameraExplorer
             }
         }
 
-        protected string _image;
-        public string Image
+        protected string _imageSource;
+        public string ImageSource
         {
             get
             {
-                return _image;
+                return _imageSource;
             }
         }
     }
 
-    public abstract class ArrayParameter<T> : Parameter, IReadOnlyCollection<ArrayParameterItem<T>>, INotifyPropertyChanged
+    public abstract class ArrayParameter<T> : Parameter, IReadOnlyCollection<ArrayParameterItem<T>>
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected Guid _guid;
         List<ArrayParameterItem<T>> _items = new List<ArrayParameterItem<T>>();
         ArrayParameterItem<T> _selectedItem;
+
+        Guid _guid;
+        protected Guid Guid
+        {
+            get
+            {
+                return _guid;
+            }
+        }
 
         public ArrayParameter(PhotoCaptureDevice device, string name, bool overlay = false)
             : base(device, name, overlay)
@@ -263,22 +327,22 @@ namespace CameraExplorer
 
             GetValues(ref _items, ref _selectedItem);
 
-            _supported = _items.Count > 0;
-            _modifiable = _supported && _items.Count > 1;
+            Supported = _items.Count > 0;
+            Modifiable = Supported && _items.Count > 1;
         }
 
         protected virtual void GetValues(ref List<ArrayParameterItem<T>> items, ref ArrayParameterItem<T> selectedItem)
         {
-            object p = _device.GetProperty(_guid);
+            object p = Device.GetProperty(_guid);
 
             if (p == null)
             {
                 SetDefault();
 
-                p = _device.GetProperty(_guid);
+                p = Device.GetProperty(_guid);
             }
 
-            foreach (object o in PhotoCaptureDevice.GetSupportedPropertyValues(_device.SensorLocation, _guid))
+            foreach (object o in PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, _guid))
             {
                 dynamic dynamic_o = o;
 
@@ -287,14 +351,15 @@ namespace CameraExplorer
                 if (o.Equals(p))
                 {
                     selectedItem = items.Last();
-                    _image = selectedItem.Image;
+
+                    ImageSource = selectedItem.ImageSource;
                 }
             }
         }
 
         protected virtual void SetValue(ArrayParameterItem<T> item)
         {
-            _device.SetProperty(_guid, (T)item.Value);
+            Device.SetProperty(_guid, (T)item.Value);
         }
 
         public ArrayParameterItem<T> Item(int index)
@@ -322,13 +387,10 @@ namespace CameraExplorer
 
                     SetValue(value);
 
-                    _image = value.Image;
+                    ImageSource = value.ImageSource;
 
-                    if (PropertyChanged != null)
-                    {
-                        PropertyChanged(this, new PropertyChangedEventArgs("SelectedItem"));
-                        PropertyChanged(this, new PropertyChangedEventArgs("Image"));
-                    }
+                    NotifyPropertyChanged("SelectedItem");
+                    NotifyPropertyChanged("ImageSource");
                 }
             }
         }
@@ -361,13 +423,13 @@ namespace CameraExplorer
 
         protected override void GetValues(ref List<ArrayParameterItem<Windows.Foundation.Size>> items, ref ArrayParameterItem<Windows.Foundation.Size> selectedItem)
         {
-            IReadOnlyList<Windows.Foundation.Size> list = PhotoCaptureDevice.GetAvailablePreviewResolutions(_device.SensorLocation);
+            IReadOnlyList<Windows.Foundation.Size> list = PhotoCaptureDevice.GetAvailablePreviewResolutions(Device.SensorLocation);
 
             foreach (Windows.Foundation.Size s in list)
             {
                 items.Add(new ArrayParameterItem<Windows.Foundation.Size>(s, s.Width + " x " + s.Height));
 
-                if (_device.PreviewResolution == s)
+                if (Device.PreviewResolution == s)
                 {
                     selectedItem = items.Last();
                 }
@@ -376,7 +438,11 @@ namespace CameraExplorer
 
         protected async override void SetValue(ArrayParameterItem<Windows.Foundation.Size> item)
         {
-            await _device.SetPreviewResolutionAsync(item.Value);
+            Modifiable = false;
+
+            await Device.SetPreviewResolutionAsync(item.Value);
+
+            Modifiable = true;
         }
     }
 
@@ -389,13 +455,13 @@ namespace CameraExplorer
 
         protected override void GetValues(ref List<ArrayParameterItem<Windows.Foundation.Size>> items, ref ArrayParameterItem<Windows.Foundation.Size> selectedItem)
         {
-            IReadOnlyList<Windows.Foundation.Size> list = PhotoCaptureDevice.GetAvailableCaptureResolutions(_device.SensorLocation);
+            IReadOnlyList<Windows.Foundation.Size> list = PhotoCaptureDevice.GetAvailableCaptureResolutions(Device.SensorLocation);
 
             foreach (Windows.Foundation.Size s in list)
             {
                 items.Add(new ArrayParameterItem<Windows.Foundation.Size>(s, s.Width + " x " + s.Height));
 
-                if (_device.CaptureResolution == s)
+                if (Device.CaptureResolution == s)
                 {
                     selectedItem = items.Last();
                 }
@@ -404,7 +470,11 @@ namespace CameraExplorer
 
         protected async override void SetValue(ArrayParameterItem<Windows.Foundation.Size> item)
         {
-            await _device.SetCaptureResolutionAsync(item.Value);
+            Modifiable = false;
+
+            await Device.SetCaptureResolutionAsync(item.Value);
+
+            Modifiable = true;
         }
     }
 
@@ -454,9 +524,9 @@ namespace CameraExplorer
 
         protected override void GetValues(ref List<ArrayParameterItem<UInt32>> items, ref ArrayParameterItem<UInt32> selectedItem)
         {
-            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(_device.SensorLocation, _guid);
+            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
 
-            object p = _device.GetProperty(_guid);
+            object p = Device.GetProperty(Guid);
 
             List<UInt32> array = ConvertRangeToArray((UInt32)range.Min, (UInt32)range.Max);
 
@@ -464,7 +534,7 @@ namespace CameraExplorer
             {
                 p = array[0];
 
-                _device.SetProperty(_guid, (UInt32)p);
+                Device.SetProperty(Guid, (UInt32)p);
             }
 
             foreach (UInt32 o in array)
@@ -474,7 +544,8 @@ namespace CameraExplorer
                 if (o.Equals(p))
                 {
                     selectedItem = items.Last();
-                    _image = selectedItem.Image;
+
+                    ImageSource = selectedItem.ImageSource;
                 }
             }
         }
@@ -482,9 +553,9 @@ namespace CameraExplorer
         public override ArrayParameterItem<UInt32> CreateItemForValue(uint value)
         {
             string name = "1/" + value.ToString() + " s";
-            string image = "Assets/Icons/overlay.exposuretime." + value.ToString() + ".png";
+            string imageSource = "Assets/Icons/overlay.exposuretime." + value.ToString() + ".png";
 
-            return new ArrayParameterItem<UInt32>(value, name, image);
+            return new ArrayParameterItem<UInt32>(value, name, imageSource);
         }
     }
 
@@ -499,11 +570,11 @@ namespace CameraExplorer
         {
             if ((Int32)_range.Min <= 0 && (Int32)_range.Max >= 0)
             {
-                _device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)0);
+                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)0);
             }
             else
             {
-                _device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)_range.Min);
+                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)_range.Min);
             }
         }
     }
@@ -545,9 +616,9 @@ namespace CameraExplorer
 
         protected override void GetValues(ref List<ArrayParameterItem<UInt32>> items, ref ArrayParameterItem<UInt32> selectedItem)
         {
-            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(_device.SensorLocation, _guid);
+            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
 
-            object p = _device.GetProperty(_guid);
+            object p = Device.GetProperty(Guid);
 
             IReadOnlyList<UInt32> array = ConvertRangeToArray((UInt32)range.Min, (UInt32)range.Max);
 
@@ -555,7 +626,7 @@ namespace CameraExplorer
             {
                 p = array[0];
 
-                _device.SetProperty(_guid, (UInt32)p);
+                Device.SetProperty(Guid, (UInt32)p);
             }
 
             foreach (UInt32 o in array)
@@ -565,7 +636,8 @@ namespace CameraExplorer
                 if (o.Equals(p))
                 {
                     selectedItem = items.Last();
-                    _image = selectedItem.Image;
+
+                    ImageSource = selectedItem.ImageSource;
                 }
             }
         }
@@ -573,9 +645,9 @@ namespace CameraExplorer
         public override ArrayParameterItem<UInt32> CreateItemForValue(uint value)
         {
             string name = "ISO " + value.ToString();
-            string image = "Assets/Icons/overlay.iso." + value.ToString() + ".png";
+            string imageSource = "Assets/Icons/overlay.iso." + value.ToString() + ".png";
 
-            return new ArrayParameterItem<UInt32>(value, name, image);
+            return new ArrayParameterItem<UInt32>(value, name, imageSource);
         }
     }
 
@@ -589,66 +661,66 @@ namespace CameraExplorer
         public override ArrayParameterItem<CameraSceneMode> CreateItemForValue(CameraSceneMode value)
         {
             string name;
-            string image;
+            string imageSource;
 
             switch (value)
             {
                 case CameraSceneMode.Auto:
                     name = "Auto";
-                    image = "Assets/Icons/overlay.scenemode.auto.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.auto.png";
                     break;
                 case CameraSceneMode.Portrait:
                     name = "Portrait";
-                    image = "Assets/Icons/overlay.scenemode.portrait.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.portrait.png";
                     break;
                 case CameraSceneMode.Sport:
                     name = "Sport";
-                    image = "Assets/Icons/overlay.scenemode.sport.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.sport.png";
                     break;
                 case CameraSceneMode.Snow:
                     name = "Snow";
-                    image = "Assets/Icons/overlay.scenemode.snow.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.snow.png";
                     break;
                 case CameraSceneMode.Night:
                     name = "Night";
-                    image = "Assets/Icons/overlay.scenemode.night.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.night.png";
                     break;
                 case CameraSceneMode.Beach:
                     name = "Beach";
-                    image = "Assets/Icons/overlay.scenemode.beach.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.beach.png";
                     break;
                 case CameraSceneMode.Sunset:
                     name = "Sunset";
-                    image = "Assets/Icons/overlay.scenemode.sunset.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.sunset.png";
                     break;
                 case CameraSceneMode.Candlelight:
                     name = "Candlelight";
-                    image = "Assets/Icons/overlay.scenemode.candlelight.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.candlelight.png";
                     break;
                 case CameraSceneMode.Landscape:
                     name = "Landscape";
-                    image = "Assets/Icons/overlay.scenemode.landscape.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.landscape.png";
                     break;
                 case CameraSceneMode.NightPortrait:
                     name = "Night portrait";
-                    image = "Assets/Icons/overlay.scenemode.nightportrait.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.nightportrait.png";
                     break;
                 case CameraSceneMode.Backlit:
                     name = "Backlit";
-                    image = "Assets/Icons/overlay.scenemode.backlit.png";
+                    imageSource = "Assets/Icons/overlay.scenemode.backlit.png";
                     break;
                 default:
                     name = "Unknown";
-                    image = "";
+                    imageSource = null;
                     break;
             }
 
-            return new ArrayParameterItem<CameraSceneMode>(value, name, image);
+            return new ArrayParameterItem<CameraSceneMode>(value, name, imageSource);
         }
 
         protected override void SetDefault()
         {
-            _device.SetProperty(KnownCameraPhotoProperties.SceneMode, CameraSceneMode.Auto);
+            Device.SetProperty(KnownCameraPhotoProperties.SceneMode, CameraSceneMode.Auto);
         }
     }
 
@@ -662,38 +734,38 @@ namespace CameraExplorer
         public override ArrayParameterItem<FlashMode> CreateItemForValue(FlashMode value)
         {
             string name;
-            string image;
+            string imageSource;
 
             switch (value)
             {
                 case FlashMode.Auto:
                     name = "Auto";
-                    image = "Assets/Icons/overlay.flashmode.auto.png";
+                    imageSource = "Assets/Icons/overlay.flashmode.auto.png";
                     break;
                 case FlashMode.Off:
                     name = "Off";
-                    image = "Assets/Icons/overlay.flashmode.off.png";
+                    imageSource = "Assets/Icons/overlay.flashmode.off.png";
                     break;
                 case FlashMode.On:
                     name = "On";
-                    image = "Assets/Icons/overlay.flashmode.on.png";
+                    imageSource = "Assets/Icons/overlay.flashmode.on.png";
                     break;
                 case FlashMode.RedEyeReduction:
                     name = "Red-eye reduction";
-                    image = "Assets/Icons/overlay.flashmode.redeyereduction.png";
+                    imageSource = "Assets/Icons/overlay.flashmode.redeyereduction.png";
                     break;
                 default:
                     name = "Unknown";
-                    image = "";
+                    imageSource = "";
                     break;
             }
 
-            return new ArrayParameterItem<FlashMode>(value, name, image);
+            return new ArrayParameterItem<FlashMode>(value, name, imageSource);
         }
 
         protected override void SetDefault()
         {
-            _device.SetProperty(KnownCameraPhotoProperties.FlashMode, FlashMode.Auto);
+            Device.SetProperty(KnownCameraPhotoProperties.FlashMode, FlashMode.Auto);
         }
     }
 
@@ -729,7 +801,7 @@ namespace CameraExplorer
 
         protected override void SetDefault()
         {
-            _device.SetProperty(KnownCameraPhotoProperties.FocusIlluminationMode, FocusIlluminationMode.Auto);
+            Device.SetProperty(KnownCameraPhotoProperties.FocusIlluminationMode, FocusIlluminationMode.Auto);
         }
     }
 
