@@ -119,7 +119,14 @@ namespace CameraExplorer
         public ArrayParameter(PhotoCaptureDevice device, string name, bool overlay = false)
             : base(device, name, overlay)
         {
-            GetValues(ref _items, ref _selectedItem);
+            try
+            {
+                GetValues(ref _items, ref _selectedItem);
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
+            }
         }
 
         public ArrayParameter(PhotoCaptureDevice device, Guid guid, string name, bool overlay = false)
@@ -127,7 +134,14 @@ namespace CameraExplorer
         {
             _guid = guid;
 
-            GetValues(ref _items, ref _selectedItem);
+            try
+            {
+                GetValues(ref _items, ref _selectedItem);
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
+            }
 
             Supported = _items.Count > 0;
             Modifiable = Supported && _items.Count > 1;
@@ -185,15 +199,22 @@ namespace CameraExplorer
             {
                 if (value != null) // null check to avoid http://stackoverflow.com/questions/3446102
                 {
-                    _selectedItem = value;
+                    try
+                    {
+                        SetValue(value);
 
-                    SetValue(value);
+                        _selectedItem = value;
 
-                    ImageSource = value.ImageSource;
-
-                    NotifyPropertyChanged("SelectedItem");
-                    NotifyPropertyChanged("ImageSource");
+                        ImageSource = value.ImageSource;
+                    }
+                    catch (Exception)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
+                    }
                 }
+
+                NotifyPropertyChanged("SelectedItem");
+                NotifyPropertyChanged("ImageSource");
             }
         }
 

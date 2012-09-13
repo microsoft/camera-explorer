@@ -15,18 +15,42 @@ namespace CameraExplorer
 {
     public abstract class RangeParameter<T> : Parameter
     {
-        protected Guid _guid;
-        protected CameraCapturePropertyRange _range;
+        Guid _guid;
+        CameraCapturePropertyRange _range;
 
         protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name, bool overlay = false)
             : base(device, name, overlay)
         {
             _guid = guid;
-            _range = PhotoCaptureDevice.GetSupportedPropertyRange(device.SensorLocation, guid);
 
-            if (device.GetProperty(guid) == null)
+            try
             {
-                SetDefault();
+                _range = PhotoCaptureDevice.GetSupportedPropertyRange(device.SensorLocation, guid);
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Getting supported range for " + Name.ToLower() + " failed");
+            }
+
+            try
+            {
+                _value = (T)device.GetProperty(guid);
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
+            }
+            
+            try
+            {
+                if (_value == null)
+                {
+                    SetDefault();
+                }
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
             }
 
             Supported = _range != null;
@@ -49,18 +73,28 @@ namespace CameraExplorer
             }
         }
 
+        T _value;
         public T Value
         {
             get
             {
-                return (T)Device.GetProperty(_guid);
+                return _value;
             }
 
             set
             {
-                Device.SetProperty(_guid, (T)value);
+                try
+                {
+                    Device.SetProperty(_guid, (T)value);
 
-                NotifyPropertyChanged("Value");
+                    _value = value;
+
+                    NotifyPropertyChanged("Value");
+                }
+                catch (Exception)
+                {
+                    System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
+                }
             }
         }
     }
@@ -74,13 +108,13 @@ namespace CameraExplorer
 
         protected override void SetDefault()
         {
-            if ((Int32)_range.Min <= 0 && (Int32)_range.Max >= 0)
+            if (Minimum <= 0 && Maximum >= 0)
             {
                 Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)0);
             }
             else
             {
-                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)_range.Min);
+                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, Minimum);
             }
         }
     }

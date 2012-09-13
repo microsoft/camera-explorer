@@ -43,7 +43,7 @@ namespace CameraExplorer
                 _parameters.Add(new IsoParameter(_dataContext.Device));
                 _parameters.Add(new ExposureCompensationParameter(_dataContext.Device));
                 _parameters.Add(new ManualWhiteBalanceParameter(_dataContext.Device));
-                _parameters.Add(new ExposureTimeParameter(_dataContext.Device)); // problems
+                _parameters.Add(new ExposureTimeParameter(_dataContext.Device));
                 _parameters.Add(new AutoFocusRangeParameter(_dataContext.Device));
                 _parameters.Add(new FocusIlluminationModeParameter(_dataContext.Device));
             }

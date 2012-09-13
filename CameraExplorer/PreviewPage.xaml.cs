@@ -43,9 +43,16 @@ namespace CameraExplorer
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            MediaLibrary library = new MediaLibrary();
+            try
+            {
+                MediaLibrary library = new MediaLibrary();
 
-            library.SavePictureToCameraRoll("CameraExplorer", _dataContext.ImageStream);
+                library.SavePictureToCameraRoll("CameraExplorer", _dataContext.ImageStream);
+            }
+            catch (Exception)
+            {
+                System.Diagnostics.Debug.WriteLine("Saving picture to camera roll failed");
+            }
 
             NavigationService.GoBack();
         }
