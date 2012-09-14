@@ -107,6 +107,8 @@ namespace CameraExplorer
         {
             SetButtonsEnabled(false);
 
+            await _dataContext.Device.FocusAsync();
+
             MemoryStream stream = new MemoryStream();
 
             CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
@@ -116,6 +118,8 @@ namespace CameraExplorer
             await sequence.StartCaptureAsync();
 
             _dataContext.ImageStream = stream;
+
+            await _dataContext.Device.ResetFocusAsync();
 
             NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
 
