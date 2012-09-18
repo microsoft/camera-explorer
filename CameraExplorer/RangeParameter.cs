@@ -23,38 +23,49 @@ namespace CameraExplorer
         {
             _guid = guid;
 
-            try
-            {
-                _range = PhotoCaptureDevice.GetSupportedPropertyRange(device.SensorLocation, guid);
-            }
-            catch (Exception)
-            {
-                System.Diagnostics.Debug.WriteLine("Getting supported range for " + Name.ToLower() + " failed");
-            }
+            Refresh();
+        }
+
+        void GetRange(ref CameraCapturePropertyRange range)
+        {
+            _range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, _guid);
+        }
+
+        void GetValue(ref T value)
+        {
+            _value = (T)Device.GetProperty(_guid);
+        }
+
+        public override void Refresh()
+        {
+            bool supported = false;
 
             try
             {
-                _value = (T)device.GetProperty(guid);
+                GetRange(ref _range);
+
+                supported = _range != null;
+
+                if (supported)
+                {
+                    GetValue(ref _value);
+                }
             }
             catch (Exception)
             {
                 System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
             }
-            
-            try
-            {
-                if (_value == null)
-                {
-                    SetDefault();
-                }
-            }
-            catch (Exception)
-            {
-                System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
-            }
 
-            Supported = _range != null;
+            Supported = supported;
             Modifiable = Supported && !_range.Min.Equals(_range.Max);
+
+            if (supported)
+            {
+                NotifyPropertyChanged("Minimum");
+                NotifyPropertyChanged("Maximum");
+                NotifyPropertyChanged("Value");
+                NotifyPropertyChanged("ImageSource");
+            }
         }
 
         public T Minimum
@@ -106,16 +117,9 @@ namespace CameraExplorer
         {
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            if (Minimum <= 0 && Maximum >= 0)
-            {
-                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, (Int32)0);
-            }
-            else
-            {
-                Device.SetProperty(KnownCameraPhotoProperties.ExposureCompensation, Minimum);
-            }
+            Value = (Int32)Minimum + (Maximum - Minimum) / 2;
         }
     }
 
@@ -126,9 +130,9 @@ namespace CameraExplorer
         {
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            Device.SetProperty(KnownCameraPhotoProperties.ManualWhiteBalance, Minimum);
+            Value = (UInt32)Minimum + (Maximum - Minimum) / 2;
         }
     }
 
@@ -139,9 +143,9 @@ namespace CameraExplorer
         {
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            Device.SetProperty(KnownCameraPhotoProperties.FlashPower, Minimum);
+            Value = (UInt32)Minimum + (Maximum - Minimum) / 2;
         }
     }
 }

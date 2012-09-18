@@ -120,7 +120,12 @@ namespace CameraExplorer
             }
         }
 
-        protected virtual void SetDefault()
+        public virtual void SetDefault()
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void Refresh()
         {
             throw new NotImplementedException();
         }

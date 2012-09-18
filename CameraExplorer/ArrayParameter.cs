@@ -119,14 +119,7 @@ namespace CameraExplorer
         public ArrayParameter(PhotoCaptureDevice device, string name, bool overlay = false)
             : base(device, name, overlay)
         {
-            try
-            {
-                GetValues(ref _items, ref _selectedItem);
-            }
-            catch (Exception)
-            {
-                System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
-            }
+            Refresh();
         }
 
         public ArrayParameter(PhotoCaptureDevice device, Guid guid, string name, bool overlay = false)
@@ -134,41 +127,59 @@ namespace CameraExplorer
         {
             _guid = guid;
 
+            Refresh();
+        }
+
+        public override void Refresh()
+        {
+            _items.Clear();
+
+            _selectedItem = null;
+
+            bool supported = false;
+
             try
             {
                 GetValues(ref _items, ref _selectedItem);
+
+                supported = _items.Count > 0;
             }
             catch (Exception)
             {
                 System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
             }
 
-            Supported = _items.Count > 0;
+            Supported = supported;
             Modifiable = Supported && _items.Count > 1;
+
+            if (supported)
+            {
+                NotifyPropertyChanged("Count");
+                NotifyPropertyChanged("SelectedItem");
+                NotifyPropertyChanged("ImageSource");
+            }
         }
 
         protected virtual void GetValues(ref List<ArrayParameterItem<T>> items, ref ArrayParameterItem<T> selectedItem)
         {
             object p = Device.GetProperty(_guid);
 
-            if (p == null)
-            {
-                SetDefault();
-
-                p = Device.GetProperty(_guid);
-            }
-
             foreach (object o in PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, _guid))
             {
                 dynamic dynamic_o = o;
 
-                items.Add(CreateItemForValue((T)dynamic_o));
+                ArrayParameterItem<T> item = CreateItemForValue((T)dynamic_o);
 
-                if (o.Equals(p))
+                if (item != null)
                 {
-                    selectedItem = items.Last();
+                    items.Add(item);
 
-                    ImageSource = selectedItem.ImageSource;
+                    if (o.Equals(p))
+                    {
+                        selectedItem = items.Last();
+
+                        ImageSource = selectedItem.ImageSource;
+                    }
                 }
             }
         }
@@ -205,7 +216,7 @@ namespace CameraExplorer
 
                         _selectedItem = value;
 
-                        ImageSource = value.ImageSource;
+                        ImageSource = _selectedItem.ImageSource;
                     }
                     catch (Exception)
                     {
@@ -239,6 +250,8 @@ namespace CameraExplorer
 
     public class PreviewResolutionParameter : ArrayParameter<Windows.Foundation.Size>
     {
+        ArrayParameterItem<Windows.Foundation.Size> _defaultItem;
+
         public PreviewResolutionParameter(PhotoCaptureDevice device)
             : base(device, "Preview resolution")
         {
@@ -257,6 +270,15 @@ namespace CameraExplorer
                     selectedItem = items.Last();
                 }
             }
+
+            if (items.Count > 0)
+            {
+                _defaultItem = items.First();
+            }
+            else
+            {
+                _defaultItem = null;
+            }
         }
 
         protected async override void SetValue(ArrayParameterItem<Windows.Foundation.Size> item)
@@ -271,6 +293,8 @@ namespace CameraExplorer
 
     public class CaptureResolutionParameter : ArrayParameter<Windows.Foundation.Size>
     {
+        ArrayParameterItem<Windows.Foundation.Size> _defaultItem;
+
         public CaptureResolutionParameter(PhotoCaptureDevice device)
             : base(device, "Capture resolution")
         {
@@ -289,6 +313,15 @@ namespace CameraExplorer
                     selectedItem = items.Last();
                 }
             }
+
+            if (items.Count > 0)
+            {
+                _defaultItem = items.First();
+            }
+            else
+            {
+                _defaultItem = null;
+            }
         }
 
         protected async override void SetValue(ArrayParameterItem<Windows.Foundation.Size> item)
@@ -303,6 +336,8 @@ namespace CameraExplorer
 
     public class ExposureTimeParameter : ArrayParameter<UInt32>
     {
+        ArrayParameterItem<UInt32> _defaultItem;
+
         public ExposureTimeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.ExposureTime, "Exposure time", true)
         {
@@ -330,7 +365,7 @@ namespace CameraExplorer
 
             for (int i = 0; i < list.Count;)
             {
-                UInt32 o = list[i];
+                UInt32 o = 1000000 / list[i];
 
                 if (o < min || o > max)
                 {
@@ -353,37 +388,46 @@ namespace CameraExplorer
 
             List<UInt32> array = ConvertRangeToArray((UInt32)range.Min, (UInt32)range.Max);
 
-            if (p == null)
-            {
-                p = array[0];
-
-                Device.SetProperty(Guid, (UInt32)p);
-            }
-
             foreach (UInt32 o in array)
             {
-                items.Add(CreateItemForValue(o));
+                ArrayParameterItem<UInt32> item = new ArrayParameterItem<UInt32>(
+                    1000000 / o,
+                    "1/" + o.ToString() + " s",
+                    "Assets/Icons/overlay.exposuretime." + o.ToString() + ".png");
 
-                if (o.Equals(p))
+                if (item != null)
                 {
-                    selectedItem = items.Last();
+                    items.Add(item);
 
-                    ImageSource = selectedItem.ImageSource;
+                    if ((1000000 / o).Equals(p))
+                    {
+                        selectedItem = items.Last();
+
+                        ImageSource = selectedItem.ImageSource;
+                    }
                 }
+            }
+
+            if (items.Count > 0)
+            {
+                _defaultItem = items.Last();
+            }
+            else
+            {
+                _defaultItem = null;
             }
         }
 
-        public override ArrayParameterItem<UInt32> CreateItemForValue(uint value)
+        public override void SetDefault()
         {
-            string name = "1/" + value.ToString() + " s";
-            string imageSource = "Assets/Icons/overlay.exposuretime." + value.ToString() + ".png";
-
-            return new ArrayParameterItem<UInt32>(value, name, imageSource);
+            SelectedItem = _defaultItem;
         }
     }
 
     public class IsoParameter : ArrayParameter<UInt32>
     {
+        ArrayParameterItem<UInt32> _defaultItem;
+
         public IsoParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.Iso, "ISO", true)
         {
@@ -425,23 +469,30 @@ namespace CameraExplorer
 
             IReadOnlyList<UInt32> array = ConvertRangeToArray((UInt32)range.Min, (UInt32)range.Max);
 
-            if (p == null)
-            {
-                p = array[0];
-
-                Device.SetProperty(Guid, (UInt32)p);
-            }
-
             foreach (UInt32 o in array)
             {
-                items.Add(CreateItemForValue(o));
+                ArrayParameterItem<UInt32> item = CreateItemForValue(o);
 
-                if (o.Equals(p))
+                if (item != null)
                 {
-                    selectedItem = items.Last();
+                    items.Add(item);
 
-                    ImageSource = selectedItem.ImageSource;
+                    if (o.Equals(p))
+                    {
+                        selectedItem = items.Last();
+
+                        ImageSource = selectedItem.ImageSource;
+                    }
                 }
+            }
+
+            if (items.Count > 0)
+            {
+                _defaultItem = items[0];
+            }
+            else
+            {
+                _defaultItem = null;
             }
         }
 
@@ -452,10 +503,17 @@ namespace CameraExplorer
 
             return new ArrayParameterItem<UInt32>(value, name, imageSource);
         }
+
+        public override void SetDefault()
+        {
+            SelectedItem = _defaultItem;
+        }
     }
 
-    public class SceneModeParameter : ArrayParameter<CameraSceneMode> // todo CameraSceneMode
+    public class SceneModeParameter : ArrayParameter<CameraSceneMode>
     {
+        ArrayParameterItem<CameraSceneMode> _defaultItem;
+
         public SceneModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.SceneMode, "Scene mode", true)
         {
@@ -513,22 +571,36 @@ namespace CameraExplorer
                     imageSource = "Assets/Icons/overlay.scenemode.backlit.png";
                     break;
                 default:
-                    name = "Unknown";
+                    name = null;
                     imageSource = null;
                     break;
             }
 
-            return new ArrayParameterItem<CameraSceneMode>(value, name, imageSource);
+            ArrayParameterItem<CameraSceneMode> item = null;
+
+            if (name != null)
+            {
+                item = new ArrayParameterItem<CameraSceneMode>(value, name, imageSource);
+
+                if (_defaultItem == null)
+                {
+                    _defaultItem = item;
+                }
+            }
+
+            return item;
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            Device.SetProperty(KnownCameraPhotoProperties.SceneMode, CameraSceneMode.Auto);
+            SelectedItem = _defaultItem;
         }
     }
 
     public class FlashModeParameter : ArrayParameter<FlashMode>
     {
+        ArrayParameterItem<FlashMode> _defaultItem;
+
         public FlashModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.FlashMode, "Flash mode", true)
         {
@@ -558,22 +630,36 @@ namespace CameraExplorer
                     imageSource = "Assets/Icons/overlay.flashmode.redeyereduction.png";
                     break;
                 default:
-                    name = "Unknown";
-                    imageSource = "";
+                    name = null;
+                    imageSource = null;
                     break;
             }
 
-            return new ArrayParameterItem<FlashMode>(value, name, imageSource);
+            ArrayParameterItem<FlashMode> item = null;
+
+            if (name != null)
+            {
+                item = new ArrayParameterItem<FlashMode>(value, name, imageSource);
+
+                if (_defaultItem == null)
+                {
+                    _defaultItem = item;
+                }
+            }
+
+            return item;
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            Device.SetProperty(KnownCameraPhotoProperties.FlashMode, FlashMode.Auto);
+            SelectedItem = _defaultItem;
         }
     }
 
     public class FocusIlluminationModeParameter : ArrayParameter<FocusIlluminationMode>
     {
+        ArrayParameterItem<FocusIlluminationMode> _defaultItem;
+
         public FocusIlluminationModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.FocusIlluminationMode, "Focus illumination mode")
         {
@@ -595,21 +681,35 @@ namespace CameraExplorer
                     name = "On";
                     break;
                 default:
-                    name = "Unknown";
+                    name = null;
                     break;
             }
 
-            return new ArrayParameterItem<FocusIlluminationMode>(value, name);
+            ArrayParameterItem<FocusIlluminationMode> item = null;
+
+            if (name != null)
+            {
+                item = new ArrayParameterItem<FocusIlluminationMode>(value, name);
+
+                if (_defaultItem == null)
+                {
+                    _defaultItem = item;
+                }
+            }
+
+            return item;
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
-            Device.SetProperty(KnownCameraPhotoProperties.FocusIlluminationMode, FocusIlluminationMode.Auto);
+            SelectedItem = _defaultItem;
         }
     }
 
     public class WhiteBalancePresetParameter : ArrayParameter<WhiteBalancePreset>
     {
+        ArrayParameterItem<WhiteBalancePreset> _defaultItem;
+
         public WhiteBalancePresetParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.WhiteBalancePreset, "White balance preset")
         {
@@ -640,20 +740,35 @@ namespace CameraExplorer
                     name = "Tungsten";
                     break;
                 default:
-                    name = "Unknown";
+                    name = null;
                     break;
             }
 
-            return new ArrayParameterItem<WhiteBalancePreset>(value, name);
+            ArrayParameterItem<WhiteBalancePreset> item = null;
+
+            if (name != null)
+            {
+                item = new ArrayParameterItem<WhiteBalancePreset>(value, name);
+
+                if (_defaultItem == null)
+                {
+                    _defaultItem = item;
+                }
+            }
+
+            return item;
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
+            SelectedItem = _defaultItem;
         }
     }
 
     public class AutoFocusRangeParameter : ArrayParameter<AutoFocusRange>
     {
+        ArrayParameterItem<AutoFocusRange> _defaultItem;
+
         public AutoFocusRangeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraGeneralProperties.AutoFocusRange, "Auto focus range")
         {
@@ -681,15 +796,28 @@ namespace CameraExplorer
                     name = "Normal";
                     break;
                 default:
-                    name = "Unknown";
+                    name = null;
                     break;
             }
 
-            return new ArrayParameterItem<AutoFocusRange>(value, name);
+            ArrayParameterItem<AutoFocusRange> item = null;
+
+            if (name != null)
+            {
+                item = new ArrayParameterItem<AutoFocusRange>(value, name);
+
+                if (_defaultItem == null)
+                {
+                    _defaultItem = item;
+                }
+            }
+
+            return item;
         }
 
-        protected override void SetDefault()
+        public override void SetDefault()
         {
+            SelectedItem = _defaultItem;
         }
     }
 }

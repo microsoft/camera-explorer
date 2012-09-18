@@ -34,13 +34,6 @@ namespace CameraExplorer
             base.OnNavigatedTo(e);
         }
 
-        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
-        {
-            _dataContext.ImageStream = null;
-
-            base.OnNavigatingFrom(e);
-        }
-
         private void saveButton_Click(object sender, EventArgs e)
         {
             try

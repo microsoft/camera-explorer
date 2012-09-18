@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{94f53777-5783-47b2-9bcb-ce46ccb0f219}" Title="Camera Explorer" RuntimeType="Silverlight" Version="0.0.0.1" Genre="apps.normal" Author="" Description="" Publisher="" PublisherID="{cc336b25-5e51-419a-8c64-3c4a7a4383f4}">
+  <App xmlns="" ProductID="{94f53777-5783-47b2-9bcb-ce46ccb0f219}" Title="Camera Explorer" RuntimeType="Silverlight" Version="0.0.0.2" Genre="apps.normal" Author="" Description="" Publisher="" PublisherID="{cc336b25-5e51-419a-8c64-3c4a7a4383f4}">
     <IconPath IsRelative="true" IsResource="false">Assets\ApplicationIcon.png</IconPath>
     <Capabilities>
       <Capability Name="ID_CAP_NETWORKING" />

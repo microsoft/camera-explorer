@@ -21,8 +21,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel x:Name="TitlePanel" Grid.Row="0" Margin="12,17,0,28">
-            <TextBlock Text="{Binding Path=LocalizedResources.ApplicationTitle, Source={StaticResource LocalizedStrings}}" Style="{StaticResource PhoneTextNormalStyle}"/>
-            <TextBlock Text="{Binding Path=LocalizedResources.PageTitle, Source={StaticResource LocalizedStrings}}" Margin="9,-7,0,0" Style="{StaticResource PhoneTextTitle1Style}"/>
+            <TextBlock Text="CAMERA EXPLORER - VIEWFINDER" Style="{StaticResource PhoneTextNormalStyle}"/>
         </StackPanel>
 
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
@@ -59,8 +58,6 @@
                 IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="settingsButton" Text="settings"
                 IconUri="Assets/Icons/appbar.feature.settings.rest.png" Click="settingsButton_Click"/>
-            <shell:ApplicationBarIconButton x:Name="aboutButton" Text="about"
-                IconUri="Assets/Icons/questionmark.png" Click="aboutButton_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 

@@ -54,7 +54,7 @@ namespace CameraExplorer
                 {
                     _device = value;
 
-                    Settings.Refresh();
+                    Settings.CreateParameters();
 
                     if (PropertyChanged != null)
                     {

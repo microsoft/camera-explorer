@@ -25,7 +25,10 @@
         </StackPanel>
 
         <StackPanel Grid.Row="1" Margin="12,0,12,0">
-            <TextBlock Margin="12,0,12,0" Text="Version 0.0.0.1"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="12,0,12,0" Text="Version"/>
+                <TextBlock x:Name="versionTextBox" Margin="12,0,12,0" Text="Version"/>
+            </StackPanel>
             <TextBlock Margin="12,10,12,0" Text="Camera Explorer application is a Nokia Developer example demonstrating the use of the advanced camera APIs of Windows Phone 8." TextWrapping="Wrap"/>
             <TextBlock Margin="12,10,12,0" Text="Developed and published by Nokia. All rights reserved." TextWrapping="Wrap"/>
             <StackPanel Orientation="Horizontal">

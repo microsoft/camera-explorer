@@ -30,6 +30,11 @@ namespace CameraExplorer
         {
             InitializeComponent();
 
+            ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem();
+            menuItem.Text = "about";
+            ApplicationBar.MenuItems.Add(menuItem);
+            menuItem.Click += new EventHandler(aboutMenuItem_Click);
+
             DataContext = _dataContext;
         }
 
@@ -107,7 +112,10 @@ namespace CameraExplorer
         {
             SetButtonsEnabled(false);
 
-            await _dataContext.Device.FocusAsync();
+            if (PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
+            {
+                await _dataContext.Device.FocusAsync();
+            }
 
             MemoryStream stream = new MemoryStream();
 
@@ -126,7 +134,7 @@ namespace CameraExplorer
             SetButtonsEnabled(true);
         }
 
-        private void aboutButton_Click(object sender, EventArgs e)
+        private void aboutMenuItem_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
         }

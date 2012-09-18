@@ -30,5 +30,10 @@ namespace CameraExplorer
         {
             _dataContext.Settings.Refresh();
         }
+
+        private void listBox_Tap(object sender, GestureEventArgs e)
+        {
+            _dataContext.Settings.Refresh();
+        }
     }
 }
