@@ -15,56 +15,48 @@ namespace CameraExplorer
 {
     public abstract class RangeParameter<T> : Parameter
     {
-        Guid _guid;
-        CameraCapturePropertyRange _range;
+        private Guid _guid;
+        private T _value;
+        private T _minimum;
+        private T _maximum;
 
-        protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name, bool overlay = false)
-            : base(device, name, overlay)
+        protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name)
+            : base(device, name)
         {
             _guid = guid;
-
-            Refresh();
-        }
-
-        void GetRange(ref CameraCapturePropertyRange range)
-        {
-            _range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, _guid);
-        }
-
-        void GetValue(ref T value)
-        {
-            _value = (T)Device.GetProperty(_guid);
         }
 
         public override void Refresh()
         {
-            bool supported = false;
-
             try
             {
-                GetRange(ref _range);
+                CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, _guid);
 
-                supported = _range != null;
-
-                if (supported)
+                if (range == null)
                 {
-                    GetValue(ref _value);
+                    Supported = false;
+                }
+                else
+                {
+                    Minimum = (T)range.Min;
+                    Maximum = (T)range.Max;
+                    Value = (T)Device.GetProperty(_guid);
+                    Supported = true;
                 }
             }
             catch (Exception)
             {
+                Supported = false;
+
                 System.Diagnostics.Debug.WriteLine("Getting " + Name.ToLower() + " failed");
             }
 
-            Supported = supported;
-            Modifiable = Supported && !_range.Min.Equals(_range.Max);
+            Modifiable = Supported && !_minimum.Equals(_maximum);
 
-            if (supported)
+            if (Supported)
             {
-                NotifyPropertyChanged("Minimum");
-                NotifyPropertyChanged("Maximum");
                 NotifyPropertyChanged("Value");
-                NotifyPropertyChanged("ImageSource");
+                NotifyPropertyChanged("OverlaySource");
             }
         }
 
@@ -72,7 +64,17 @@ namespace CameraExplorer
         {
             get
             {
-                return (T)_range.Min;
+                return _minimum;
+            }
+
+            private set
+            {
+                if (!_minimum.Equals(value))
+                {
+                    _minimum = value;
+
+                    NotifyPropertyChanged("Minimum");
+                }
             }
         }
 
@@ -80,11 +82,20 @@ namespace CameraExplorer
         {
             get
             {
-                return (T)_range.Max;
+                return _maximum;
+            }
+
+            private set
+            {
+                if (!_maximum.Equals(value))
+                {
+                    _maximum = value;
+
+                    NotifyPropertyChanged("Maximum");
+                }
             }
         }
 
-        T _value;
         public T Value
         {
             get
@@ -119,7 +130,7 @@ namespace CameraExplorer
 
         public override void SetDefault()
         {
-            Value = (Int32)Minimum + (Maximum - Minimum) / 2;
+            Value = (Int32)(Minimum + (Maximum - Minimum) / 2);
         }
     }
 
@@ -132,7 +143,7 @@ namespace CameraExplorer
 
         public override void SetDefault()
         {
-            Value = (UInt32)Minimum + (Maximum - Minimum) / 2;
+            Value = (UInt32)(Minimum + (Maximum - Minimum) / 2);
         }
     }
 
@@ -145,7 +156,7 @@ namespace CameraExplorer
 
         public override void SetDefault()
         {
-            Value = (UInt32)Minimum + (Maximum - Minimum) / 2;
+            Value = (UInt32)(Minimum + (Maximum - Minimum) / 2);
         }
     }
 }

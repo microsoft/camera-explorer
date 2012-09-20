@@ -37,7 +37,7 @@
                                 <DataTemplate>
                                     <StackPanel Margin="0,12,0,12" Orientation="Horizontal">
                                         <TextBlock Text="{Binding Name}" Style="{StaticResource PhoneTextTitle2Style}" Width="230" TextWrapping="Wrap" Margin="0"/>
-                                        <ComboBox ItemsSource="{Binding}" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" DisplayMemberPath="Name" IsEnabled="{Binding Modifiable}"  Width="230"/>
+                                        <ComboBox ItemsSource="{Binding}" SelectedItem="{Binding SelectedOption, Mode=TwoWay}" DisplayMemberPath="Name" IsEnabled="{Binding Modifiable}"  Width="230"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </local:SettingsTemplateSelector.ArrayParameterTemplate>

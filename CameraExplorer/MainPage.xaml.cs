@@ -24,7 +24,7 @@ namespace CameraExplorer
 {
     public partial class MainPage : PhoneApplicationPage
     {
-        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
+        private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
 
         public MainPage()
         {
@@ -36,14 +36,6 @@ namespace CameraExplorer
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
 
             DataContext = _dataContext;
-        }
-
-        void SetButtonsEnabled(bool enabled)
-        {
-            foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
-            {
-                b.IsEnabled = enabled;
-            }
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
@@ -67,6 +59,14 @@ namespace CameraExplorer
             };
 
             videoBrush.SetSource(_dataContext.Device);
+        }
+
+        private void SetButtonsEnabled(bool enabled)
+        {
+            foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
+            {
+                b.IsEnabled = enabled;
+            }
         }
 
         private void settingsButton_Click(object sender, EventArgs e)

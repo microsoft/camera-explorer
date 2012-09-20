@@ -17,7 +17,7 @@ namespace CameraExplorer
 
         public DataTemplate SelectTemplate(object item)
         {
-            if ((item as Parameter).ImageSource != null)
+            if ((item as Parameter).OverlaySource != null)
             {
                 return ParameterWithOverlayTemplate;
             }

@@ -98,6 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="ArrayParameter.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="OverlayTemplateSelector.cs" />
     <Compile Include="DataContext.cs" />

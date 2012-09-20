@@ -14,9 +14,8 @@ namespace CameraExplorer
 {
     public partial class PreviewPage : PhoneApplicationPage
     {
-        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
-
-        BitmapImage _bitmap = new BitmapImage();
+        private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
+        private BitmapImage _bitmap = new BitmapImage();
 
         public PreviewPage()
         {

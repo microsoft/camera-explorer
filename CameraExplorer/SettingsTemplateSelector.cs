@@ -18,23 +18,25 @@ namespace CameraExplorer
 
         public DataTemplate SelectTemplate(object item)
         {
-            if ((item as Parameter).Supported)
+            Parameter parameter = item as Parameter;
+
+            if (parameter.Supported && parameter.Modifiable)
             {
-                if (item is IsoParameter ||
-                    item is SceneModeParameter ||
-                    item is FlashModeParameter ||
-                    item is WhiteBalancePresetParameter ||
-                    item is AutoFocusRangeParameter ||
-                    item is FocusIlluminationModeParameter ||
-                    item is ExposureTimeParameter ||
-                    item is PreviewResolutionParameter ||
-                    item is CaptureResolutionParameter)
+                if (parameter is IsoParameter ||
+                    parameter is SceneModeParameter ||
+                    parameter is FlashModeParameter ||
+                    parameter is WhiteBalancePresetParameter ||
+                    parameter is AutoFocusRangeParameter ||
+                    parameter is FocusIlluminationModeParameter ||
+                    parameter is ExposureTimeParameter ||
+                    parameter is PreviewResolutionParameter ||
+                    parameter is CaptureResolutionParameter)
                 {
                     return ArrayParameterTemplate;
                 }
-                else if (item is ManualWhiteBalanceParameter ||
-                    item is FlashPowerParameter ||
-                    item is ExposureCompensationParameter)
+                else if (parameter is ManualWhiteBalanceParameter ||
+                    parameter is FlashPowerParameter ||
+                    parameter is ExposureCompensationParameter)
                 {
                     return RangeParameterTemplate;
                 }

@@ -17,117 +17,16 @@ namespace CameraExplorer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        bool _overlay;
+        private PhotoCaptureDevice _device;
+        private string _name;
+        private string _overlaySource;
+        private bool _supported = true;
+        private bool _modifiable = true;
 
-        protected Parameter(PhotoCaptureDevice device, string name, bool overlay)
+        protected Parameter(PhotoCaptureDevice device, string name)
         {
             _device = device;
             _name = name;
-            _overlay = overlay;
-        }
-
-        PhotoCaptureDevice _device;
-        public PhotoCaptureDevice Device
-        {
-            get
-            {
-                return _device;
-            }
-        }
-
-        string _name;
-        public string Name
-        {
-            get
-            {
-                return _name;
-            }
-
-            protected set
-            {
-                _name = value;
-
-                NotifyPropertyChanged("Name");
-            }
-        }
-
-        string _imageSource;
-        public string ImageSource
-        {
-            get
-            {
-                if (_imageSource == null && _overlay)
-                {
-                    return "";
-                }
-                else
-                {
-                    return _imageSource;
-                }
-            }
-
-            protected set
-            {
-                if (_overlay)
-                {
-                    if (value == null)
-                    {
-                        _imageSource = "";
-                    }
-                    else
-                    {
-                        _imageSource = value;
-                    }
-
-                    NotifyPropertyChanged("ImageSource");
-                }
-                else if (value != null)
-                {
-                    throw new ArgumentException("Overlays are not enabled for this parameter");
-                }
-            }
-        }
-
-        bool _supported = true;
-        public bool Supported
-        {
-            get
-            {
-                return _supported;
-            }
-
-            protected set
-            {
-                _supported = value;
-
-                NotifyPropertyChanged("Supported");
-            }
-        }
-
-        bool _modifiable = true;
-        public bool Modifiable
-        {
-            get
-            {
-                return _modifiable;
-            }
-
-            protected set
-            {
-                _modifiable = value;
-
-                NotifyPropertyChanged("Modifiable");
-            }
-        }
-
-        public virtual void SetDefault()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Refresh()
-        {
-            throw new NotImplementedException();
         }
 
         protected void NotifyPropertyChanged(string name)
@@ -137,5 +36,79 @@ namespace CameraExplorer
                 PropertyChanged(this, new PropertyChangedEventArgs(name));
             }
         }
+
+        public PhotoCaptureDevice Device
+        {
+            get
+            {
+                return _device;
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+        }
+
+        public string OverlaySource
+        {
+            get
+            {
+                return _overlaySource;
+            }
+
+            protected set
+            {
+                if (_overlaySource != value)
+                {
+                    _overlaySource = value;
+
+                    NotifyPropertyChanged("OverlaySource");
+                }
+            }
+        }
+
+        public bool Supported
+        {
+            get
+            {
+                return _supported;
+            }
+
+            protected set
+            {
+                if (_supported != value)
+                {
+                    _supported = value;
+
+                    NotifyPropertyChanged("Supported");
+                }
+            }
+        }
+
+        public bool Modifiable
+        {
+            get
+            {
+                return _modifiable;
+            }
+
+            protected set
+            {
+                if (_modifiable != value)
+                {
+                    _modifiable = value;
+
+                    NotifyPropertyChanged("Modifiable");
+                }
+            }
+        }
+
+        public abstract void Refresh();
+
+        public abstract void SetDefault();
     }
 }
