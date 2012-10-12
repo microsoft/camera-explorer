@@ -26,6 +26,7 @@ namespace CameraExplorer
     {
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
         private ProgressIndicator _progressIndicator = new ProgressIndicator();
+        private bool _capturing = false;
 
         public MainPage()
         {
@@ -45,20 +46,11 @@ namespace CameraExplorer
         {
             if (_dataContext.Device == null)
             {
-                SetButtonsEnabled(false);
-
                 ShowProgress("Initializing camera...");
 
                 await _dataContext.InitializeCamera(CameraSensorLocation.Back);
 
                 HideProgress();
-
-                if (PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
-                {
-                    await _dataContext.Device.FocusAsync();
-                }
-
-                SetButtonsEnabled(true);
             }
 
             videoBrush.RelativeTransform = new CompositeTransform()
@@ -72,6 +64,9 @@ namespace CameraExplorer
 
             overlayComboBox.Opacity = 1;
 
+            SetScreenButtonsEnabled(true);
+            SetCameraButtonsEnabled(true);
+
             base.OnNavigatedTo(e);
         }
 
@@ -79,14 +74,31 @@ namespace CameraExplorer
         {
             overlayComboBox.Opacity = 0;
 
+            SetScreenButtonsEnabled(false);
+            SetCameraButtonsEnabled(false);
+
             base.OnNavigatingFrom(e);
         }
 
-        private void SetButtonsEnabled(bool enabled)
+        private void SetScreenButtonsEnabled(bool enabled)
         {
             foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
             {
                 b.IsEnabled = enabled;
+            }
+        }
+
+        private void SetCameraButtonsEnabled(bool enabled)
+        {
+            if (enabled)
+            {
+                Microsoft.Devices.CameraButtons.ShutterKeyHalfPressed += ShutterKeyHalfPressed;
+                Microsoft.Devices.CameraButtons.ShutterKeyPressed += ShutterKeyPressed;
+            }
+            else
+            {
+                Microsoft.Devices.CameraButtons.ShutterKeyHalfPressed -= ShutterKeyHalfPressed;
+                Microsoft.Devices.CameraButtons.ShutterKeyPressed -= ShutterKeyPressed;
             }
         }
 
@@ -97,13 +109,14 @@ namespace CameraExplorer
 
         private async void sensorButton_Click(object sender, EventArgs e)
         {
+            SetScreenButtonsEnabled(false);
+            SetCameraButtonsEnabled(false);
+
             ShowProgress("Initializing camera...");
 
             videoBrush.Opacity = 0.25;
 
             overlayComboBox.Opacity = 0;
-
-            SetButtonsEnabled(false);
 
             CameraSensorLocation currentSensorLocation = _dataContext.Device.SensorLocation;
 
@@ -132,35 +145,17 @@ namespace CameraExplorer
 
             overlayComboBox.Opacity = 1;
 
-            SetButtonsEnabled(true);
-
             HideProgress();
+
+            SetScreenButtonsEnabled(true);
+            SetCameraButtonsEnabled(true);
         }
 
         private async void captureButton_Click(object sender, EventArgs e)
         {
-            SetButtonsEnabled(false);
+            await AutoFocus();
 
-            if (PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
-            {
-                await _dataContext.Device.FocusAsync();
-            }
-
-            MemoryStream stream = new MemoryStream();
-
-            CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
-            sequence.Frames[0].CaptureStream = stream.AsOutputStream();
-
-            await _dataContext.Device.PrepareCaptureSequenceAsync(sequence);
-            await sequence.StartCaptureAsync();
-
-            _dataContext.ImageStream = stream;
-
-            await _dataContext.Device.ResetFocusAsync();
-
-            NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
-
-            SetButtonsEnabled(true);
+            await Capture();
         }
 
         private void aboutMenuItem_Click(object sender, EventArgs e)
@@ -181,6 +176,54 @@ namespace CameraExplorer
             _progressIndicator.IsVisible = false;
 
             SystemTray.SetProgressIndicator(this, _progressIndicator);
+        }
+
+        private async Task AutoFocus()
+        {
+            if (!_capturing && PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
+            {
+                SetScreenButtonsEnabled(false);
+                SetCameraButtonsEnabled(false);
+
+                await _dataContext.Device.FocusAsync();
+
+                SetScreenButtonsEnabled(true);
+                SetCameraButtonsEnabled(true);
+
+                _capturing = false;
+            }
+        }
+
+        private async Task Capture()
+        {
+            if (!_capturing)
+            {
+                _capturing = true;
+
+                MemoryStream stream = new MemoryStream();
+
+                CameraCaptureSequence sequence = _dataContext.Device.CreateCaptureSequence(1);
+                sequence.Frames[0].CaptureStream = stream.AsOutputStream();
+
+                await _dataContext.Device.PrepareCaptureSequenceAsync(sequence);
+                await sequence.StartCaptureAsync();
+
+                _dataContext.ImageStream = stream;
+
+                _capturing = false;
+
+                NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
+            }
+        }
+
+        private async void ShutterKeyHalfPressed(object sender, EventArgs e)
+        {
+            await AutoFocus();
+        }
+
+        private async void ShutterKeyPressed(object sender, EventArgs e)
+        {
+            await Capture();
         }
     }
 }

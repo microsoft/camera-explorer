@@ -439,7 +439,7 @@ namespace CameraExplorer
     public class ManualWhiteBalanceParameter : ArrayParameter
     {
         public ManualWhiteBalanceParameter(PhotoCaptureDevice device)
-            : base(device, KnownCameraPhotoProperties.ManualWhiteBalance, "Manual White Balance")
+            : base(device, KnownCameraPhotoProperties.ManualWhiteBalance, "Manual white balance")
         {
         }
 
