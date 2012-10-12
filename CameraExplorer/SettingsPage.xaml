@@ -60,4 +60,11 @@
             </ListBox>
         </Grid>
     </Grid>
+
+    <phone:PhoneApplicationPage.ApplicationBar>
+        <shell:ApplicationBar IsVisible="True">
+            <shell:ApplicationBarIconButton x:Name="resetButton" Text="reset"
+                IconUri="Assets/Icons/appbar.refresh.rest.png" Click="resetButton_Click"/>
+        </shell:ApplicationBar>
+    </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

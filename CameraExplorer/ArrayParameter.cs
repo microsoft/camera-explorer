@@ -229,55 +229,6 @@ namespace CameraExplorer
         protected abstract void SetOption(ArrayParameterOption option);
     }
 
-    public class PreviewResolutionParameter : ArrayParameter
-    {
-        public PreviewResolutionParameter(PhotoCaptureDevice device)
-            : base(device, "Preview resolution")
-        {
-        }
-
-        protected override void PopulateOptions()
-        {
-            IReadOnlyList<Windows.Foundation.Size> supportedValues = PhotoCaptureDevice.GetAvailablePreviewResolutions(Device.SensorLocation);
-            Windows.Foundation.Size value = Device.PreviewResolution;
-
-            ArrayParameterOption option = null;
-
-            foreach (Windows.Foundation.Size i in supportedValues)
-            {
-                option = new ArrayParameterOption(i, i.Width + " x " + i.Height);
-
-                Options.Add(option);
-
-                if (i.Equals(value))
-                {
-                    SelectedOption = option;
-                }
-            }
-        }
-
-        protected async override void SetOption(ArrayParameterOption option)
-        {
-            Modifiable = false;
-
-            await Device.SetPreviewResolutionAsync((Windows.Foundation.Size)option.Value);
-
-            Modifiable = true;
-        }
-
-        public override void SetDefault()
-        {
-            if (Options.Count > 0)
-            {
-                SetOption(Options.First());
-            }
-            else
-            {
-                SelectedOption = null;
-            }
-        }
-    }
-
     public class CaptureResolutionParameter : ArrayParameter
     {
         public CaptureResolutionParameter(PhotoCaptureDevice device)
@@ -307,23 +258,19 @@ namespace CameraExplorer
 
         protected async override void SetOption(ArrayParameterOption option)
         {
-            Modifiable = false;
+            if (Modifiable)
+            {
+                Modifiable = false;
 
-            await Device.SetCaptureResolutionAsync((Windows.Foundation.Size)option.Value);
+                await Device.SetCaptureResolutionAsync((Windows.Foundation.Size)option.Value);
 
-            Modifiable = true;
+                Modifiable = true;
+            }
         }
 
         public override void SetDefault()
         {
-            if (Options.Count > 0)
-            {
-                SetOption(Options.First());
-            }
-            else
-            {
-                SelectedOption = null;
-            }
+            SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 

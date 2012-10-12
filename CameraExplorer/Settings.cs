@@ -60,8 +60,6 @@ namespace CameraExplorer
 
                 addParameter(new SceneModeParameter(_dataContext.Device));
                 addParameter(new WhiteBalancePresetParameter(_dataContext.Device));
-                //addParameter(new PreviewResolutionParameter(_dataContext.Device)); // todo throws exception when setting this
-                addParameter(new CaptureResolutionParameter(_dataContext.Device));
                 addParameter(new FlashModeParameter(_dataContext.Device)); // todo throws exception when setting this
                 addParameter(new FlashPowerParameter(_dataContext.Device));
                 addParameter(new IsoParameter(_dataContext.Device));
@@ -70,6 +68,7 @@ namespace CameraExplorer
                 addParameter(new ExposureTimeParameter(_dataContext.Device));
                 addParameter(new AutoFocusRangeParameter(_dataContext.Device));
                 addParameter(new FocusIlluminationModeParameter(_dataContext.Device));
+                addParameter(new CaptureResolutionParameter(_dataContext.Device));
 
                 Parameters = newParameters;
             }

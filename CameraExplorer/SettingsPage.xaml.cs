@@ -12,6 +12,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Windows.Phone.Media.Capture;
+using Microsoft.Phone.Shell;
 
 namespace CameraExplorer
 {
@@ -24,6 +25,26 @@ namespace CameraExplorer
             InitializeComponent();
 
             DataContext = _dataContext;
+        }
+
+        private void resetButton_Click(object sender, EventArgs e)
+        {
+            SetScreenButtonsEnabled(false);
+
+            foreach (Parameter i in _dataContext.Settings.Parameters)
+            {
+                i.SetDefault();
+            }
+
+            SetScreenButtonsEnabled(true);
+        }
+
+        private void SetScreenButtonsEnabled(bool enabled)
+        {
+            foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
+            {
+                b.IsEnabled = enabled;
+            }
         }
     }
 }
