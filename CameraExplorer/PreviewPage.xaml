@@ -23,17 +23,16 @@
             <TextBlock Text="CAMERA EXPLORER - PREVIEW" Style="{StaticResource PhoneTextNormalStyle}"/>
         </StackPanel>
 
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <Grid x:Name="ContentPanel" Grid.Row="1">
             <Image x:Name="image" Stretch="UniformToFill"/>
         </Grid>
     </Grid>
 
-    <!-- todo does not work
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True">
             <shell:ApplicationBarIconButton x:Name="saveButton" Text="save"
                 IconUri="Assets/Icons/save.png" Click="saveButton_Click"/>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
-    -->
+    
 </phone:PhoneApplicationPage>

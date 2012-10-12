@@ -25,6 +25,7 @@ namespace CameraExplorer
     public partial class MainPage : PhoneApplicationPage
     {
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
+        private ProgressIndicator _progressIndicator = new ProgressIndicator();
 
         public MainPage()
         {
@@ -36,17 +37,26 @@ namespace CameraExplorer
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
 
             DataContext = _dataContext;
+
+            _progressIndicator.IsIndeterminate = true;
         }
 
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            base.OnNavigatedTo(e);
-
             if (_dataContext.Device == null)
             {
                 SetButtonsEnabled(false);
 
+                ShowProgress("Initializing camera...");
+
                 await _dataContext.InitializeCamera(CameraSensorLocation.Back);
+
+                HideProgress();
+
+                if (PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
+                {
+                    await _dataContext.Device.FocusAsync();
+                }
 
                 SetButtonsEnabled(true);
             }
@@ -55,10 +65,21 @@ namespace CameraExplorer
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorRotationInDegrees
+                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ? _dataContext.Device.SensorRotationInDegrees : - _dataContext.Device.SensorRotationInDegrees
             };
 
             videoBrush.SetSource(_dataContext.Device);
+
+            overlayComboBox.Opacity = 1;
+
+            base.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
+        {
+            overlayComboBox.Opacity = 0;
+
+            base.OnNavigatingFrom(e);
         }
 
         private void SetButtonsEnabled(bool enabled)
@@ -76,7 +97,11 @@ namespace CameraExplorer
 
         private async void sensorButton_Click(object sender, EventArgs e)
         {
+            ShowProgress("Initializing camera...");
+
             videoBrush.Opacity = 0.25;
+
+            overlayComboBox.Opacity = 0;
 
             SetButtonsEnabled(false);
 
@@ -99,13 +124,17 @@ namespace CameraExplorer
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorRotationInDegrees
+                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ? _dataContext.Device.SensorRotationInDegrees : _dataContext.Device.SensorRotationInDegrees + 180
             };
 
             videoBrush.SetSource(_dataContext.Device);
             videoBrush.Opacity = 1;
 
+            overlayComboBox.Opacity = 1;
+
             SetButtonsEnabled(true);
+
+            HideProgress();
         }
 
         private async void captureButton_Click(object sender, EventArgs e)
@@ -137,6 +166,21 @@ namespace CameraExplorer
         private void aboutMenuItem_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
+
+        private void ShowProgress(String msg)
+        {
+            _progressIndicator.Text = msg;
+            _progressIndicator.IsVisible = true;
+
+            SystemTray.SetProgressIndicator(this, _progressIndicator);
+        }
+
+        private void HideProgress()
+        {
+            _progressIndicator.IsVisible = false;
+
+            SystemTray.SetProgressIndicator(this, _progressIndicator);
         }
     }
 }

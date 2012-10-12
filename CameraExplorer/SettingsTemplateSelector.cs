@@ -22,27 +22,13 @@ namespace CameraExplorer
 
             if (parameter.Supported && parameter.Modifiable)
             {
-                if (parameter is IsoParameter ||
-                    parameter is SceneModeParameter ||
-                    parameter is FlashModeParameter ||
-                    parameter is WhiteBalancePresetParameter ||
-                    parameter is AutoFocusRangeParameter ||
-                    parameter is FocusIlluminationModeParameter ||
-                    parameter is ExposureTimeParameter ||
-                    parameter is PreviewResolutionParameter ||
-                    parameter is CaptureResolutionParameter)
+                if (parameter is ArrayParameter)
                 {
                     return ArrayParameterTemplate;
                 }
-                else if (parameter is ManualWhiteBalanceParameter ||
-                    parameter is FlashPowerParameter ||
-                    parameter is ExposureCompensationParameter)
-                {
-                    return RangeParameterTemplate;
-                }
                 else
                 {
-                    return null;
+                    return RangeParameterTemplate;
                 }
             }
             else

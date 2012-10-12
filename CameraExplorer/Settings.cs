@@ -44,7 +44,6 @@ namespace CameraExplorer
                             {
                                 parameter.Refresh();
                                 parameter.SetDefault();
-                                parameter.Refresh();
 
                                 newParameters.Add(parameter);
                             }
@@ -53,17 +52,21 @@ namespace CameraExplorer
                                 System.Diagnostics.Debug.WriteLine("Setting default to " + parameter.Name.ToLower() + " failed");
                             }
                         }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine("Parameter " + parameter.Name.ToLower() + " is not supported or not modifiable");
+                        }
                     };
 
                 addParameter(new SceneModeParameter(_dataContext.Device));
                 addParameter(new WhiteBalancePresetParameter(_dataContext.Device));
                 //addParameter(new PreviewResolutionParameter(_dataContext.Device)); // todo throws exception when setting this
-                //addParameter(new CaptureResolutionParameter(_dataContext.Device)); // todo does not capture after setting this
-                //addParameter(new FlashModeParameter(_dataContext.Device)); // todo does not capture after setting this
+                addParameter(new CaptureResolutionParameter(_dataContext.Device));
+                addParameter(new FlashModeParameter(_dataContext.Device)); // todo throws exception when setting this
                 addParameter(new FlashPowerParameter(_dataContext.Device));
                 addParameter(new IsoParameter(_dataContext.Device));
-                //addParameter(new ExposureCompensationParameter(_dataContext.Device)); // todo does not work, does not capture after setting this
-                //addParameter(new ManualWhiteBalanceParameter(_dataContext.Device)); // todo dependency with wb preset
+                addParameter(new ExposureCompensationParameter(_dataContext.Device)); // todo does not work, does not capture after setting this
+                addParameter(new ManualWhiteBalanceParameter(_dataContext.Device)); // todo dependency with wb preset
                 addParameter(new ExposureTimeParameter(_dataContext.Device));
                 addParameter(new AutoFocusRangeParameter(_dataContext.Device));
                 addParameter(new FocusIlluminationModeParameter(_dataContext.Device));

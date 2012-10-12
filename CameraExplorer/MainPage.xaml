@@ -24,14 +24,14 @@
             <TextBlock Text="CAMERA EXPLORER - VIEWFINDER" Style="{StaticResource PhoneTextNormalStyle}"/>
         </StackPanel>
 
-        <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
+        <Grid x:Name="ContentPanel" Grid.Row="1">
             <Canvas>
                 <Canvas.Background>
                     <VideoBrush x:Name="videoBrush"/>
                 </Canvas.Background>
             </Canvas>
 
-            <ComboBox ItemsSource="{Binding Settings.Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10">
+            <ComboBox x:Name="overlayComboBox" ItemsSource="{Binding Settings.Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10" Opacity="0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <local:OverlayTemplateSelector Content="{Binding}">
@@ -52,10 +52,10 @@
     
     <phone:PhoneApplicationPage.ApplicationBar>
         <shell:ApplicationBar IsVisible="True">
-            <shell:ApplicationBarIconButton x:Name="captureButton" Text="capture"
-                IconUri="Assets/Icons/appbar.feature.camera.rest.png" Click="captureButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="sensorButton" Text="sensor"
                 IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click"/>
+            <shell:ApplicationBarIconButton x:Name="captureButton" Text="capture"
+                IconUri="Assets/Icons/appbar.feature.camera.rest.png" Click="captureButton_Click"/>
             <shell:ApplicationBarIconButton x:Name="settingsButton" Text="settings"
                 IconUri="Assets/Icons/appbar.feature.settings.rest.png" Click="settingsButton_Click"/>
         </shell:ApplicationBar>

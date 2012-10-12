@@ -19,11 +19,18 @@ namespace CameraExplorer
         private T _value;
         private T _minimum;
         private T _maximum;
+        private bool _constructing;
 
         protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name)
             : base(device, name)
         {
             _guid = guid;
+
+            _constructing = true;
+
+            Refresh();
+
+            _constructing = false;
         }
 
         public override void Refresh()
@@ -107,7 +114,10 @@ namespace CameraExplorer
             {
                 try
                 {
-                    Device.SetProperty(_guid, (T)value);
+                    if (!_constructing)
+                    {
+                        Device.SetProperty(_guid, (T)value);
+                    }
 
                     _value = value;
 
@@ -131,19 +141,6 @@ namespace CameraExplorer
         public override void SetDefault()
         {
             Value = (Int32)(Minimum + (Maximum - Minimum) / 2);
-        }
-    }
-
-    public class ManualWhiteBalanceParameter : RangeParameter<UInt32>
-    {
-        public ManualWhiteBalanceParameter(PhotoCaptureDevice device)
-            : base(device, KnownCameraPhotoProperties.ManualWhiteBalance, "White balance")
-        {
-        }
-
-        public override void SetDefault()
-        {
-            Value = (UInt32)(Minimum + (Maximum - Minimum) / 2);
         }
     }
 

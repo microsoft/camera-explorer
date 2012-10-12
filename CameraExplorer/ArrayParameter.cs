@@ -13,13 +13,13 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
-    public class ArrayParameterEnumerator<T> : IEnumerator<ArrayParameterOption<T>>
+    public class ArrayParameterEnumerator : IEnumerator<ArrayParameterOption>
     {
-        private ArrayParameter<T> _arrayParameter;
+        private ArrayParameter _arrayParameter;
         private int _count;
         private int _index = -1;
 
-        public ArrayParameterEnumerator(ArrayParameter<T> arrayParameter, int count)
+        public ArrayParameterEnumerator(ArrayParameter arrayParameter, int count)
         {
             _arrayParameter = arrayParameter;
             _count = count;
@@ -33,11 +33,11 @@ namespace CameraExplorer
             }
         }
 
-        ArrayParameterOption<T> IEnumerator<ArrayParameterOption<T>>.Current
+        ArrayParameterOption IEnumerator<ArrayParameterOption>.Current
         {
             get
             {
-                return (ArrayParameterOption<T>)Current;
+                return (ArrayParameterOption)Current;
             }
         }
 
@@ -65,20 +65,20 @@ namespace CameraExplorer
         }
     }
 
-    public class ArrayParameterOption<T>
+    public class ArrayParameterOption
     {
-        private T _value;
+        private dynamic _value;
         private string _name;
         private string _overlaySource;
 
-        public ArrayParameterOption(T value, string name, string overlaySource = null)
+        public ArrayParameterOption(dynamic value, string name, string overlaySource = null)
         {
             _value = value;
             _name = name;
             _overlaySource = overlaySource;
         }
 
-        public T Value
+        public dynamic Value
         {
             get
             {
@@ -103,11 +103,12 @@ namespace CameraExplorer
         }
     }
 
-    public abstract class ArrayParameter<T> : Parameter, IReadOnlyCollection<ArrayParameterOption<T>>
+    public abstract class ArrayParameter : Parameter, IReadOnlyCollection<ArrayParameterOption>
     {
-        private List<ArrayParameterOption<T>> _options = new List<ArrayParameterOption<T>>();
-        private ArrayParameterOption<T> _selectedOption;
+        private List<ArrayParameterOption> _options = new List<ArrayParameterOption>();
+        private ArrayParameterOption _selectedOption;
         private Guid _guid;
+        private bool _refreshing = false;
 
         public ArrayParameter(PhotoCaptureDevice device, string name)
             : base(device, name)
@@ -122,7 +123,11 @@ namespace CameraExplorer
 
         public override void Refresh()
         {
+            _refreshing = true;
+
             _options.Clear();
+
+            _selectedOption = null;
 
             try
             {
@@ -145,14 +150,16 @@ namespace CameraExplorer
                 NotifyPropertyChanged("SelectedOption");
                 NotifyPropertyChanged("OverlaySource");
             }
+
+            _refreshing = false;
         }
 
-        public ArrayParameterOption<T> Option(int index)
+        public ArrayParameterOption Option(int index)
         {
             return _options[index];
         }
 
-        public ArrayParameterOption<T> SelectedOption
+        public ArrayParameterOption SelectedOption
         {
             get
             {
@@ -162,17 +169,23 @@ namespace CameraExplorer
             set
             {
                 if (value == null) return; // null check to avoid http://stackoverflow.com/questions/3446102
-
+                    
                 if (_selectedOption != value)
                 {
-                    SetOption(value);
+                    if (!(_refreshing && _selectedOption == null))
+                    {
+                        SetOption(value);
+                    }
 
                     _selectedOption = value;
 
                     OverlaySource = _selectedOption.OverlaySource;
 
-                    NotifyPropertyChanged("SelectedOption");
-                    NotifyPropertyChanged("OverlaySource");
+                    if (!(_refreshing && _selectedOption == null))
+                    {
+                        NotifyPropertyChanged("SelectedOption");
+                        NotifyPropertyChanged("OverlaySource");
+                    }
                 }
             }
         }
@@ -185,14 +198,14 @@ namespace CameraExplorer
             }
         }
 
-        public IEnumerator<ArrayParameterOption<T>> GetEnumerator()
+        public IEnumerator<ArrayParameterOption> GetEnumerator()
         {
-            return new ArrayParameterEnumerator<T>(this, _options.Count);
+            return new ArrayParameterEnumerator(this, _options.Count);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return new ArrayParameterEnumerator<T>(this, _options.Count);
+            return new ArrayParameterEnumerator(this, _options.Count);
         }
 
         protected Guid Guid
@@ -203,7 +216,7 @@ namespace CameraExplorer
             }
         }
 
-        protected List<ArrayParameterOption<T>> Options
+        protected List<ArrayParameterOption> Options
         {
             get
             {
@@ -211,34 +224,12 @@ namespace CameraExplorer
             }
         }
 
-        protected virtual void PopulateOptions()
-        {
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, _guid);
-            object value = Device.GetProperty(_guid);
+        protected abstract void PopulateOptions();
 
-            foreach (dynamic i in supportedValues)
-            {
-                ArrayParameterOption<T> item = CreateOption((T)i);
-
-                Options.Add(item);
-
-                if (i.Equals(value))
-                {
-                    SelectedOption = item;
-                    OverlaySource = item.OverlaySource;
-                }
-            }
-        }
-
-        protected abstract ArrayParameterOption<T> CreateOption(T value);
-
-        protected virtual void SetOption(ArrayParameterOption<T> item)
-        {
-            Device.SetProperty(_guid, (T)item.Value);
-        }
+        protected abstract void SetOption(ArrayParameterOption option);
     }
 
-    public class PreviewResolutionParameter : ArrayParameter<Windows.Foundation.Size>
+    public class PreviewResolutionParameter : ArrayParameter
     {
         public PreviewResolutionParameter(PhotoCaptureDevice device)
             : base(device, "Preview resolution")
@@ -250,33 +241,26 @@ namespace CameraExplorer
             IReadOnlyList<Windows.Foundation.Size> supportedValues = PhotoCaptureDevice.GetAvailablePreviewResolutions(Device.SensorLocation);
             Windows.Foundation.Size value = Device.PreviewResolution;
 
-            ArrayParameterOption<Windows.Foundation.Size> item = null;
+            ArrayParameterOption option = null;
 
             foreach (Windows.Foundation.Size i in supportedValues)
             {
-                item = CreateOption(i);
+                option = new ArrayParameterOption(i, i.Width + " x " + i.Height);
 
-                Options.Add(item);
+                Options.Add(option);
 
                 if (i.Equals(value))
                 {
-                    SelectedOption = item;
+                    SelectedOption = option;
                 }
             }
         }
 
-        protected override ArrayParameterOption<Windows.Foundation.Size> CreateOption(Windows.Foundation.Size value)
-        {
-            string name = value.Width + " x " + value.Height;
-
-            return new ArrayParameterOption<Windows.Foundation.Size>(value, name);
-        }
-
-        protected async override void SetOption(ArrayParameterOption<Windows.Foundation.Size> item)
+        protected async override void SetOption(ArrayParameterOption option)
         {
             Modifiable = false;
 
-            await Device.SetPreviewResolutionAsync(item.Value);
+            await Device.SetPreviewResolutionAsync((Windows.Foundation.Size)option.Value);
 
             Modifiable = true;
         }
@@ -294,7 +278,7 @@ namespace CameraExplorer
         }
     }
 
-    public class CaptureResolutionParameter : ArrayParameter<Windows.Foundation.Size>
+    public class CaptureResolutionParameter : ArrayParameter
     {
         public CaptureResolutionParameter(PhotoCaptureDevice device)
             : base(device, "Capture resolution")
@@ -306,33 +290,26 @@ namespace CameraExplorer
             IReadOnlyList<Windows.Foundation.Size> supportedValues = PhotoCaptureDevice.GetAvailableCaptureResolutions(Device.SensorLocation);
             Windows.Foundation.Size value = Device.CaptureResolution;
 
-            ArrayParameterOption<Windows.Foundation.Size> item = null;
+            ArrayParameterOption option = null;
 
             foreach (Windows.Foundation.Size i in supportedValues)
             {
-                item = CreateOption(i);
+                option = new ArrayParameterOption(i, i.Width + " x " + i.Height);
 
-                Options.Add(item);
+                Options.Add(option);
 
                 if (i.Equals(value))
                 {
-                    SelectedOption = item;
+                    SelectedOption = option;
                 }
             }
         }
 
-        protected override ArrayParameterOption<Windows.Foundation.Size> CreateOption(Windows.Foundation.Size value)
-        {
-            string name = value.Width + " x " + value.Height;
-
-            return new ArrayParameterOption<Windows.Foundation.Size>(value, name);
-        }
-
-        protected async override void SetOption(ArrayParameterOption<Windows.Foundation.Size> item)
+        protected async override void SetOption(ArrayParameterOption option)
         {
             Modifiable = false;
 
-            await Device.SetCaptureResolutionAsync(item.Value);
+            await Device.SetCaptureResolutionAsync((Windows.Foundation.Size)option.Value);
 
             Modifiable = true;
         }
@@ -350,10 +327,8 @@ namespace CameraExplorer
         }
     }
 
-    public class ExposureTimeParameter : ArrayParameter<UInt32>
+    public class ExposureTimeParameter : ArrayParameter
     {
-        private ArrayParameterOption<UInt32> _defaultOption;
-
         public ExposureTimeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.ExposureTime, "Exposure time")
         {
@@ -361,14 +336,17 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
-            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
+            ArrayParameterOption option = new ArrayParameterOption(null, "Auto", "Assets/Icons/overlay.exposuretime.auto.png");
+            ArrayParameterOption selectedOption = option;
+
+            Options.Add(option);
+
+            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, KnownCameraPhotoProperties.ExposureTime);
             object value = Device.GetProperty(Guid);
-            UInt32[] standardValues = { 16000, 8000, 4000, 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2, 1 };
+            UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2, 1 };
 
             UInt32 min = (UInt32)range.Min;
             UInt32 max = (UInt32)range.Max;
-
-            ArrayParameterOption<UInt32> item = null;
 
             foreach (UInt32 i in standardValues)
             {
@@ -376,53 +354,32 @@ namespace CameraExplorer
 
                 if (usecs >= min && usecs <= max)
                 {
-                    item = CreateOption(i);
+                    option = new ArrayParameterOption(usecs, "1 / " + i.ToString() + " s", "Assets/Icons/overlay.exposuretime." + i.ToString() + ".png");
 
-                    Options.Add(item);
+                    Options.Add(option);
 
-                    if (usecs.Equals(value))
+                    if (selectedOption == null && usecs.Equals(value))
                     {
-                        SelectedOption = item;
-                        OverlaySource = item.OverlaySource;
-                    }
-
-                    if (i >= 30)
-                    {
-                        _defaultOption = item;
+                        selectedOption = option;
                     }
                 }
             }
+
+            SelectedOption = selectedOption;
         }
 
-        protected override ArrayParameterOption<UInt32> CreateOption(UInt32 value)
+        protected override void SetOption(ArrayParameterOption option)
         {
-            string name = "1 / " + value.ToString() + " s";
-            string overlaySource = "Assets/Icons/overlay.exposuretime." + value.ToString() + ".png";
-
-            return new ArrayParameterOption<UInt32>(1000000 / value, name, overlaySource);
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
         {
-            if (Options.Count > 0)
-            {
-                foreach (ArrayParameterOption<UInt32> i in Options)
-                {
-                    if (i.Value == 1000000 / 30 || i == Options.Last())
-                    {
-                        SelectedOption = i;
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                SelectedOption = null;
-            }
+            SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
-    public class IsoParameter : ArrayParameter<UInt32>
+    public class IsoParameter : ArrayParameter
     {
         public IsoParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.Iso, "ISO")
@@ -431,6 +388,11 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
+            ArrayParameterOption option = new ArrayParameterOption(null, "Auto", "Assets/Icons/overlay.iso.auto.png");
+            ArrayParameterOption selectedOption = option;
+
+            Options.Add(option);
+
             CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
             object value = Device.GetProperty(Guid);
             UInt32[] standardValues = { 100, 200, 400, 800, 1600, 3200 };
@@ -438,31 +400,27 @@ namespace CameraExplorer
             UInt32 min = (UInt32)range.Min;
             UInt32 max = (UInt32)range.Max;
 
-            ArrayParameterOption<UInt32> item = null;
-
             foreach (UInt32 i in standardValues)
             {
                 if (i >= min && i <= max)
                 {
-                    item = CreateOption(i);
+                    option = new ArrayParameterOption(i, "ISO " + i.ToString(), "Assets/Icons/overlay.iso." + i.ToString() + ".png");
 
-                    Options.Add(item);
+                    Options.Add(option);
 
                     if (i.Equals(value))
                     {
-                        SelectedOption = item;
-                        OverlaySource = item.OverlaySource;
+                        selectedOption = option;
                     }
                 }
             }
+
+            SelectedOption = selectedOption;
         }
 
-        protected override ArrayParameterOption<UInt32> CreateOption(UInt32 value)
+        protected override void SetOption(ArrayParameterOption option)
         {
-            string name = "ISO " + value.ToString();
-            string overlaySource = "Assets/Icons/overlay.iso." + value.ToString() + ".png";
-
-            return new ArrayParameterOption<UInt32>(value, name, overlaySource);
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
@@ -478,28 +436,102 @@ namespace CameraExplorer
         }
     }
 
-    public class SceneModeParameter : ArrayParameter<CameraSceneMode>
+    public class ManualWhiteBalanceParameter : ArrayParameter
+    {
+        public ManualWhiteBalanceParameter(PhotoCaptureDevice device)
+            : base(device, KnownCameraPhotoProperties.ManualWhiteBalance, "Manual White Balance")
+        {
+        }
+
+        protected override void PopulateOptions()
+        {
+            ArrayParameterOption option = new ArrayParameterOption(null, "Auto");
+            ArrayParameterOption selectedOption = option;
+
+            Options.Add(option);
+
+            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
+            UInt32[] standardValues = { 2700, 3000, 5200, 5400, 6000, 6500, 7200, 8000 };
+
+            UInt32 min = (UInt32)range.Min;
+            UInt32 max = (UInt32)range.Max;
+
+            foreach (UInt32 i in standardValues)
+            {
+                if (i >= min && i <= max)
+                {
+                    option = new ArrayParameterOption(i, i.ToString() + " K");
+
+                    Options.Add(option);
+
+                    if (i.Equals(value))
+                    {
+                        selectedOption = option;
+                    }
+                }
+            }
+
+            SelectedOption = selectedOption;
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, option.Value);
+        }
+
+        public override void SetDefault()
+        {
+            if (Options.Count > 0)
+            {
+                SelectedOption = Options.First();
+            }
+            else
+            {
+                SelectedOption = null;
+            }
+        }
+    }
+
+    public class SceneModeParameter : ArrayParameter
     {
         public SceneModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.SceneMode, "Scene mode")
         {
         }
 
-        protected override ArrayParameterOption<CameraSceneMode> CreateOption(CameraSceneMode value)
+        protected override void PopulateOptions()
         {
-            string name = value.EnumerationToParameterName<CameraSceneMode>();
-            string overlaySource = "Assets/Icons/overlay.scenemode." + value.ToString().ToLower() + ".png";
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
 
-            return new ArrayParameterOption<CameraSceneMode>(value, name, overlaySource);
+            foreach (dynamic i in supportedValues)
+            {
+                CameraSceneMode csm = (CameraSceneMode)i;
+
+                ArrayParameterOption option = new ArrayParameterOption(csm, csm.EnumerationToParameterName<CameraSceneMode>(), "Assets/Icons/overlay.scenemode." + csm.ToString().ToLower() + ".png");
+
+                Options.Add(option);
+
+                if (i.Equals(value))
+                {
+                    SelectedOption = option;
+                }
+            }
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
         {
             bool found = false;
 
-            foreach (ArrayParameterOption<CameraSceneMode> i in Options)
+            foreach (ArrayParameterOption i in Options)
             {
-                if (i.Value == CameraSceneMode.Auto || i == Options.Last())
+                if ((CameraSceneMode)i.Value == CameraSceneMode.Auto || i == Options.Last())
                 {
                     SelectedOption = i;
                     found = true;
@@ -514,26 +546,43 @@ namespace CameraExplorer
         }
     }
 
-    public class FlashModeParameter : ArrayParameter<FlashMode>
+    public class FlashModeParameter : ArrayParameter
     {
         public FlashModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.FlashMode, "Flash mode")
         {
         }
 
-        protected override ArrayParameterOption<FlashMode> CreateOption(FlashMode value)
+        protected override void PopulateOptions()
         {
-            string name = value.EnumerationToParameterName<FlashMode>();
-            string overlaySource = "Assets/Icons/overlay.flashmode." + value.ToString().ToLower() + ".png";
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
 
-            return new ArrayParameterOption<FlashMode>(value, name, overlaySource);
+            foreach (dynamic i in supportedValues)
+            {
+                FlashMode fm = (FlashMode)i;
+
+                ArrayParameterOption option = new ArrayParameterOption(fm, fm.EnumerationToParameterName<FlashMode>(), "Assets/Icons/overlay.flashmode." + fm.ToString().ToLower() + ".png");
+
+                Options.Add(option);
+
+                if (i.Equals(value))
+                {
+                    SelectedOption = option;
+                }
+            }
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, (FlashMode)option.Value);
         }
 
         public override void SetDefault()
         {
             bool found = false;
 
-            foreach (ArrayParameterOption<FlashMode> i in Options)
+            foreach (ArrayParameterOption i in Options)
             {
                 if (i.Value == FlashMode.Auto)
                 {
@@ -550,27 +599,43 @@ namespace CameraExplorer
         }
     }
 
-    public class FocusIlluminationModeParameter : ArrayParameter<FocusIlluminationMode>
+    public class FocusIlluminationModeParameter : ArrayParameter
     {
-        private ArrayParameterOption<FocusIlluminationMode> _defaultOption;
-
         public FocusIlluminationModeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.FocusIlluminationMode, "Focus illumination mode")
         {
         }
 
-        protected override ArrayParameterOption<FocusIlluminationMode> CreateOption(FocusIlluminationMode value)
+        protected override void PopulateOptions()
         {
-            string name = value.EnumerationToParameterName<FocusIlluminationMode>();
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
 
-            return new ArrayParameterOption<FocusIlluminationMode>(value, name);
+            foreach (dynamic i in supportedValues)
+            {
+                FocusIlluminationMode fim = (FocusIlluminationMode)i;
+
+                ArrayParameterOption option = new ArrayParameterOption(fim, fim.EnumerationToParameterName<FocusIlluminationMode>());
+
+                Options.Add(option);
+
+                if (i.Equals(value))
+                {
+                    SelectedOption = option;
+                }
+            }
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
         {
             bool found = false;
 
-            foreach (ArrayParameterOption<FocusIlluminationMode> i in Options)
+            foreach (ArrayParameterOption i in Options)
             {
                 if (i.Value == FocusIlluminationMode.Auto)
                 {
@@ -587,46 +652,88 @@ namespace CameraExplorer
         }
     }
 
-    public class WhiteBalancePresetParameter : ArrayParameter<WhiteBalancePreset>
+    public class WhiteBalancePresetParameter : ArrayParameter
     {
         public WhiteBalancePresetParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraPhotoProperties.WhiteBalancePreset, "White balance preset")
         {
         }
 
-        protected override ArrayParameterOption<WhiteBalancePreset> CreateOption(WhiteBalancePreset value)
+        protected override void PopulateOptions()
         {
-            string name = value.EnumerationToParameterName<WhiteBalancePreset>();
-            string overlaySource = "Assets/Icons/overlay.whitebalancepreset." + value.ToString().ToLower() + ".png";
+            ArrayParameterOption option = new ArrayParameterOption(null, "Auto");
+            ArrayParameterOption selectedOption = option;
 
-            return new ArrayParameterOption<WhiteBalancePreset>(value, name, overlaySource);
+            Options.Add(option);
+
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
+
+            foreach (dynamic i in supportedValues)
+            {
+                WhiteBalancePreset wbp = (WhiteBalancePreset)i;
+
+                option = new ArrayParameterOption(wbp, wbp.EnumerationToParameterName<WhiteBalancePreset>(), "Assets/Icons/overlay.whitebalancepreset." + wbp.ToString().ToLower() + ".png");
+
+                Options.Add(option);
+
+                if (i.Equals(value))
+                {
+                    selectedOption = option;
+                }
+            }
+
+            SelectedOption = selectedOption;
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
         {
-            // todo auto does not exist in the enumeration, which item to set?
+            SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
-    public class AutoFocusRangeParameter : ArrayParameter<AutoFocusRange>
+    public class AutoFocusRangeParameter : ArrayParameter
     {
         public AutoFocusRangeParameter(PhotoCaptureDevice device)
             : base(device, KnownCameraGeneralProperties.AutoFocusRange, "Auto focus range")
         {
         }
 
-        protected override ArrayParameterOption<AutoFocusRange> CreateOption(AutoFocusRange value)
+        protected override void PopulateOptions()
         {
-            string name = value.EnumerationToParameterName<AutoFocusRange>();
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
+            object value = Device.GetProperty(Guid);
 
-            return new ArrayParameterOption<AutoFocusRange>(value, name);
+            foreach (dynamic i in supportedValues)
+            {
+                AutoFocusRange afr = (AutoFocusRange)i;
+
+                ArrayParameterOption option = new ArrayParameterOption(afr, afr.EnumerationToParameterName<AutoFocusRange>());
+
+                Options.Add(option);
+
+                if (i.Equals(value))
+                {
+                    SelectedOption = option;
+                }
+            }
+        }
+
+        protected override void SetOption(ArrayParameterOption option)
+        {
+            Device.SetProperty(Guid, option.Value);
         }
 
         public override void SetDefault()
         {
             bool found = false;
 
-            foreach (ArrayParameterOption<AutoFocusRange> i in Options)
+            foreach (ArrayParameterOption i in Options)
             {
                 if (i.Value == AutoFocusRange.Normal)
                 {

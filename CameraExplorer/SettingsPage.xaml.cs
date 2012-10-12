@@ -25,15 +25,5 @@ namespace CameraExplorer
 
             DataContext = _dataContext;
         }
-
-        private void refreshButton_Click(object sender, EventArgs e)
-        {
-            _dataContext.Settings.Refresh();
-        }
-
-        private void listBox_Tap(object sender, GestureEventArgs e)
-        {
-            _dataContext.Settings.Refresh();
-        }
     }
 }

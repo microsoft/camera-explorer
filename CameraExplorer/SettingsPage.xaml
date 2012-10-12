@@ -26,7 +26,7 @@
         </StackPanel>
 
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <ListBox x:Name="listBox" ItemsSource="{Binding Settings.Parameters}" Tap="listBox_Tap">
+            <ListBox x:Name="listBox" ItemsSource="{Binding Settings.Parameters}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <local:SettingsTemplateSelector Content="{Binding}">
@@ -60,12 +60,4 @@
             </ListBox>
         </Grid>
     </Grid>
-
-    <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True">
-            <shell:ApplicationBarIconButton x:Name="refreshButton" Text="refresh"
-                IconUri="Assets/Icons/appbar.refresh.rest.png" Click="refreshButton_Click"/>
-        </shell:ApplicationBar>
-    </phone:PhoneApplicationPage.ApplicationBar>
-    
 </phone:PhoneApplicationPage>

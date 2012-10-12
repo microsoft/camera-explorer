@@ -77,7 +77,7 @@ namespace CameraExplorer
             await d.SetPreviewResolutionAsync(previewResolution);
             await d.SetCaptureResolutionAsync(captureResolution);
 
-            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorRotationInDegrees);
+            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorLocation == CameraSensorLocation.Back ? d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
 
             Device = d;
         }

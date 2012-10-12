@@ -169,6 +169,7 @@
     <Content Include="Assets\Icons\overlay.exposuretime.60.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.8.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.8000.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.auto.png" />
     <Content Include="Assets\Icons\overlay.flashmode.auto.png" />
     <Content Include="Assets\Icons\overlay.flashmode.off.png" />
     <Content Include="Assets\Icons\overlay.flashmode.on.png" />
@@ -180,6 +181,7 @@
     <Content Include="Assets\Icons\overlay.iso.3200.png" />
     <Content Include="Assets\Icons\overlay.iso.400.png" />
     <Content Include="Assets\Icons\overlay.iso.800.png" />
+    <Content Include="Assets\Icons\overlay.iso.auto.png" />
     <Content Include="Assets\Icons\overlay.scenemode.auto.png" />
     <Content Include="Assets\Icons\overlay.scenemode.backlit.png" />
     <Content Include="Assets\Icons\overlay.scenemode.beach.png" />
