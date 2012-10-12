@@ -13,12 +13,23 @@ namespace MapExplorer
 {
     public partial class AboutPage : PhoneApplicationPage
     {
+        CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
 
         public AboutPage()
         {
             InitializeComponent();
 
             versionTextBox.Text = XDocument.Load("WMAppManifest.xml").Root.Element("App").Attribute("Version").Value;
+        }
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            if (_dataContext.Device == null)
+            {
+                NavigationService.GoBack();
+            }
+
+            base.OnNavigatedTo(e);
         }
     }
 }

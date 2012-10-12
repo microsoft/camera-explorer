@@ -34,6 +34,7 @@ namespace CameraExplorer
 
             ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem();
             menuItem.Text = "about";
+            menuItem.IsEnabled = false;
             ApplicationBar.MenuItems.Add(menuItem);
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
 
@@ -85,6 +86,11 @@ namespace CameraExplorer
             foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
             {
                 b.IsEnabled = enabled;
+            }
+
+            foreach (ApplicationBarMenuItem m in ApplicationBar.MenuItems)
+            {
+                m.IsEnabled = enabled;
             }
         }
 
