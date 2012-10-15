@@ -3,6 +3,7 @@ using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Xna.Framework.Media;
 using System.Windows.Media.Imaging;
+using System.IO;
 
 namespace CameraExplorer
 {
@@ -38,9 +39,10 @@ namespace CameraExplorer
         {
             try
             {
-                MediaLibrary library = new MediaLibrary();
+                _dataContext.ImageStream.Position = 0;
 
-                library.SavePictureToCameraRoll("CameraExplorer.jpg", _dataContext.ImageStream);
+                MediaLibrary library = new MediaLibrary();
+                library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString() + ".jpg", _dataContext.ImageStream);
             }
             catch (Exception)
             {
