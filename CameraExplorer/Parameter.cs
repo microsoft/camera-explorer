@@ -1,14 +1,4 @@
-﻿using Microsoft.Devices;
-using Microsoft.Phone.Shell;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
+﻿using System.ComponentModel;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer

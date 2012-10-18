@@ -26,7 +26,7 @@
         </StackPanel>
 
         <Grid x:Name="ContentPanel" Grid.Row="1" Margin="12,0,12,0">
-            <ListBox x:Name="listBox" ItemsSource="{Binding Settings.Parameters}">
+            <ListBox ItemsSource="{Binding Parameters}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <local:SettingsTemplateSelector Content="{Binding}">

@@ -17,8 +17,6 @@ namespace CameraExplorer
 {
     public partial class App : Application
     {
-        private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
-
         /// <summary>
         /// Provides easy access to the root frame of the Phone Application.
         /// </summary>
@@ -77,7 +75,10 @@ namespace CameraExplorer
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            _dataContext.UnitializeCamera();
+            CameraExplorer.DataContext d = CameraExplorer.DataContext.Singleton;
+
+            d.Device.Dispose();
+            d.Device = null;
         }
 
         // Code to execute when the application is closing (eg, user hit Back)

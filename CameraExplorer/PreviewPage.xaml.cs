@@ -42,6 +42,7 @@ namespace CameraExplorer
                 _dataContext.ImageStream.Position = 0;
 
                 MediaLibrary library = new MediaLibrary();
+
                 library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString() + ".jpg", _dataContext.ImageStream);
             }
             catch (Exception)

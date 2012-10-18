@@ -1,14 +1,8 @@
 ﻿using Microsoft.Devices;
-using Microsoft.Phone.Shell;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
@@ -107,7 +101,7 @@ namespace CameraExplorer
     {
         private List<ArrayParameterOption> _options = new List<ArrayParameterOption>();
         private ArrayParameterOption _selectedOption;
-        private Guid _guid;
+        private Guid _propertyId;
         private bool _refreshing = false;
 
         public ArrayParameter(PhotoCaptureDevice device, string name)
@@ -115,10 +109,10 @@ namespace CameraExplorer
         {
         }
 
-        public ArrayParameter(PhotoCaptureDevice device, Guid guid, string name)
+        public ArrayParameter(PhotoCaptureDevice device, Guid propertyId, string name)
             : base(device, name)
         {
-            _guid = guid;
+            _propertyId = propertyId;
         }
 
         public override void Refresh()
@@ -208,11 +202,11 @@ namespace CameraExplorer
             return new ArrayParameterEnumerator(this, _options.Count);
         }
 
-        protected Guid Guid
+        protected Guid PropertyId
         {
             get
             {
-                return _guid;
+                return _propertyId;
             }
         }
 
@@ -289,7 +283,7 @@ namespace CameraExplorer
             Options.Add(option);
 
             CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, KnownCameraPhotoProperties.ExposureTime);
-            object value = Device.GetProperty(Guid);
+            object value = Device.GetProperty(PropertyId);
             UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2, 1 };
 
             UInt32 min = (UInt32)range.Min;
@@ -317,7 +311,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()
@@ -340,8 +334,8 @@ namespace CameraExplorer
 
             Options.Add(option);
 
-            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
             UInt32[] standardValues = { 100, 200, 400, 800, 1600, 3200 };
 
             UInt32 min = (UInt32)range.Min;
@@ -367,64 +361,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
-        }
-
-        public override void SetDefault()
-        {
-            if (Options.Count > 0)
-            {
-                SelectedOption = Options.First();
-            }
-            else
-            {
-                SelectedOption = null;
-            }
-        }
-    }
-
-    public class ManualWhiteBalanceParameter : ArrayParameter
-    {
-        public ManualWhiteBalanceParameter(PhotoCaptureDevice device)
-            : base(device, KnownCameraPhotoProperties.ManualWhiteBalance, "Manual white balance")
-        {
-        }
-
-        protected override void PopulateOptions()
-        {
-            ArrayParameterOption option = new ArrayParameterOption(null, "Auto");
-            ArrayParameterOption selectedOption = option;
-
-            Options.Add(option);
-
-            CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
-            UInt32[] standardValues = { 2700, 3000, 5200, 5400, 6000, 6500, 7200, 8000 };
-
-            UInt32 min = (UInt32)range.Min;
-            UInt32 max = (UInt32)range.Max;
-
-            foreach (UInt32 i in standardValues)
-            {
-                if (i >= min && i <= max)
-                {
-                    option = new ArrayParameterOption(i, i.ToString() + " K");
-
-                    Options.Add(option);
-
-                    if (i.Equals(value))
-                    {
-                        selectedOption = option;
-                    }
-                }
-            }
-
-            SelectedOption = selectedOption;
-        }
-
-        protected override void SetOption(ArrayParameterOption option)
-        {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()
@@ -449,8 +386,8 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
 
             foreach (dynamic i in supportedValues)
             {
@@ -469,7 +406,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()
@@ -502,8 +439,8 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
 
             foreach (dynamic i in supportedValues)
             {
@@ -522,7 +459,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, (FlashMode)option.Value);
+            Device.SetProperty(PropertyId, (FlashMode)option.Value);
         }
 
         public override void SetDefault()
@@ -555,8 +492,8 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
 
             foreach (dynamic i in supportedValues)
             {
@@ -575,7 +512,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()
@@ -613,8 +550,8 @@ namespace CameraExplorer
 
             Options.Add(option);
 
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
 
             foreach (dynamic i in supportedValues)
             {
@@ -635,7 +572,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()
@@ -653,8 +590,8 @@ namespace CameraExplorer
 
         protected override void PopulateOptions()
         {
-            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, Guid);
-            object value = Device.GetProperty(Guid);
+            IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
+            object value = Device.GetProperty(PropertyId);
 
             foreach (dynamic i in supportedValues)
             {
@@ -673,7 +610,7 @@ namespace CameraExplorer
 
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(Guid, option.Value);
+            Device.SetProperty(PropertyId, option.Value);
         }
 
         public override void SetDefault()

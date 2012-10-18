@@ -51,7 +51,7 @@
     </Grid>
     
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True">
+        <shell:ApplicationBar>
             <shell:ApplicationBarIconButton x:Name="sensorButton" Text="sensor"
                 IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click" IsEnabled="False"/>
             <shell:ApplicationBarIconButton x:Name="captureButton" Text="capture"

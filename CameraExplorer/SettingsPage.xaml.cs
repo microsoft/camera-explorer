@@ -41,7 +41,7 @@ namespace CameraExplorer
         {
             SetScreenButtonsEnabled(false);
 
-            foreach (Parameter i in _dataContext.Settings.Parameters)
+            foreach (Parameter i in _dataContext.Parameters)
             {
                 i.SetDefault();
             }

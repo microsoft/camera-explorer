@@ -15,29 +15,24 @@ namespace CameraExplorer
 {
     public abstract class RangeParameter<T> : Parameter
     {
-        private Guid _guid;
+        private Guid _propertyId;
         private T _value;
         private T _minimum;
         private T _maximum;
-        private bool _constructing;
 
-        protected RangeParameter(PhotoCaptureDevice device, Guid guid, string name)
+        protected RangeParameter(PhotoCaptureDevice device, Guid propertyId, string name)
             : base(device, name)
         {
-            _guid = guid;
-
-            _constructing = true;
+            _propertyId = propertyId;
 
             Refresh();
-
-            _constructing = false;
         }
 
         public override void Refresh()
         {
             try
             {
-                CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, _guid);
+                CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, _propertyId);
 
                 if (range == null)
                 {
@@ -47,7 +42,7 @@ namespace CameraExplorer
                 {
                     Minimum = (T)range.Min;
                     Maximum = (T)range.Max;
-                    Value = (T)Device.GetProperty(_guid);
+                    _value = (T)Device.GetProperty(_propertyId);
                     Supported = true;
                 }
             }
@@ -112,20 +107,20 @@ namespace CameraExplorer
 
             set
             {
-                try
+                if (!_value.Equals(value))
                 {
-                    if (!_constructing)
+                    try
                     {
-                        Device.SetProperty(_guid, (T)value);
+                        _value = value;
+
+                        Device.SetProperty(_propertyId, (T)value);
+
+                        NotifyPropertyChanged("Value");
                     }
-
-                    _value = value;
-
-                    NotifyPropertyChanged("Value");
-                }
-                catch (Exception)
-                {
-                    System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
+                    catch (Exception)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
+                    }
                 }
             }
         }

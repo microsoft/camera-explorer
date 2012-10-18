@@ -1,24 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+﻿using Microsoft.Devices;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using CameraExplorer.Resources;
-using Microsoft.Devices;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Navigation;
 using Windows.Phone.Media.Capture;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Media;
-using System.IO;
-using System.Windows.Media.Imaging;
 
 namespace CameraExplorer
 {
@@ -49,7 +38,7 @@ namespace CameraExplorer
             {
                 ShowProgress("Initializing camera...");
 
-                await _dataContext.InitializeCamera(CameraSensorLocation.Back);
+                await InitializeCamera(CameraSensorLocation.Back);
 
                 HideProgress();
             }
@@ -58,7 +47,8 @@ namespace CameraExplorer
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ? _dataContext.Device.SensorRotationInDegrees : - _dataContext.Device.SensorRotationInDegrees
+                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
+                    _dataContext.Device.SensorRotationInDegrees : - _dataContext.Device.SensorRotationInDegrees
             };
 
             videoBrush.SetSource(_dataContext.Device);
@@ -126,24 +116,26 @@ namespace CameraExplorer
 
             CameraSensorLocation currentSensorLocation = _dataContext.Device.SensorLocation;
 
-            _dataContext.UnitializeCamera();
+            _dataContext.Device.Dispose();
+            _dataContext.Device = null;
 
             IReadOnlyList<CameraSensorLocation> sensorLocations = PhotoCaptureDevice.AvailableSensorLocations;
 
             if (currentSensorLocation == sensorLocations[1])
             {
-                await _dataContext.InitializeCamera(sensorLocations[0]);
+                await InitializeCamera(sensorLocations[0]);
             }
             else
             {
-                await _dataContext.InitializeCamera(sensorLocations[1]);
+                await InitializeCamera(sensorLocations[1]);
             }
 
             videoBrush.RelativeTransform = new CompositeTransform()
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ? _dataContext.Device.SensorRotationInDegrees : _dataContext.Device.SensorRotationInDegrees + 180
+                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
+                           _dataContext.Device.SensorRotationInDegrees : _dataContext.Device.SensorRotationInDegrees + 180
             };
 
             videoBrush.SetSource(_dataContext.Device);
@@ -182,6 +174,22 @@ namespace CameraExplorer
             _progressIndicator.IsVisible = false;
 
             SystemTray.SetProgressIndicator(this, _progressIndicator);
+        }
+
+        private async Task InitializeCamera(CameraSensorLocation sensorLocation)
+        {
+            Windows.Foundation.Size initialResolution = new Windows.Foundation.Size(640, 480);
+            Windows.Foundation.Size previewResolution = new Windows.Foundation.Size(640, 480);
+            Windows.Foundation.Size captureResolution = new Windows.Foundation.Size(640, 480);
+
+            PhotoCaptureDevice d = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
+
+            await d.SetPreviewResolutionAsync(previewResolution);
+            await d.SetCaptureResolutionAsync(captureResolution);
+
+            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorLocation == CameraSensorLocation.Back ? d.SensorRotationInDegrees : -d.SensorRotationInDegrees);
+
+            _dataContext.Device = d;
         }
 
         private async Task AutoFocus()

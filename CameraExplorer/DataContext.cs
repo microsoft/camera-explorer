@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.IO.IsolatedStorage;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
@@ -16,31 +10,45 @@ namespace CameraExplorer
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        static DataContext _singleton;
-        public static CameraExplorer.DataContext Singleton
+        private static DataContext _singleton;
+        private PhotoCaptureDevice _device = null;
+        private ObservableCollection<Parameter> _parameters = new ObservableCollection<Parameter>();
+
+        public static DataContext Singleton
         {
             get
             {
                 if (_singleton == null)
-                    _singleton = new CameraExplorer.DataContext();
+                {
+                    _singleton = new DataContext();
+                }
 
                 return _singleton;
             }
         }
 
-        Settings _settings = null;
-        public Settings Settings
+        public ObservableCollection<Parameter> Parameters
         {
             get
             {
-                if (_settings == null)
-                    _settings = new Settings();
+                return _parameters;
+            }
 
-                return _settings;
+            private set
+            {
+                if (_parameters != value)
+                {
+                    _parameters = value;
+
+
+                    if (PropertyChanged != null)
+                    {
+                        PropertyChanged(this, new PropertyChangedEventArgs("Parameters"));
+                    }
+                }
             }
         }
 
-        PhotoCaptureDevice _device = null;
         public PhotoCaptureDevice Device
         {
             get
@@ -53,8 +61,46 @@ namespace CameraExplorer
                 if (_device != value)
                 {
                     _device = value;
+                    
+                    if (_device != null)
+                    {
+                        ObservableCollection<Parameter> newParameters = new ObservableCollection<Parameter>();
 
-                    Settings.CreateParameters();
+                        Action<Parameter> addParameter = (Parameter parameter) =>
+                        {
+                            if (parameter.Supported && parameter.Modifiable)
+                            {
+                                try
+                                {
+                                    parameter.Refresh();
+                                    parameter.SetDefault();
+
+                                    newParameters.Add(parameter);
+                                }
+                                catch (Exception)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("Setting default to " + parameter.Name.ToLower() + " failed");
+                                }
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine("Parameter " + parameter.Name.ToLower() + " is not supported or not modifiable");
+                            }
+                        };
+
+                        addParameter(new SceneModeParameter(_device));
+                        addParameter(new WhiteBalancePresetParameter(_device));
+                        addParameter(new FlashModeParameter(_device));
+                        addParameter(new FlashPowerParameter(_device));
+                        addParameter(new IsoParameter(_device));
+                        addParameter(new ExposureCompensationParameter(_device));
+                        addParameter(new ExposureTimeParameter(_device));
+                        addParameter(new AutoFocusRangeParameter(_device));
+                        addParameter(new FocusIlluminationModeParameter(_device));
+                        addParameter(new CaptureResolutionParameter(_device));
+
+                        Parameters = newParameters;
+                    }
 
                     if (PropertyChanged != null)
                     {
@@ -65,30 +111,5 @@ namespace CameraExplorer
         }
 
         public MemoryStream ImageStream { get; set; }
-
-        public async Task InitializeCamera(CameraSensorLocation sensorLocation)
-        {
-            Windows.Foundation.Size initialResolution = new Windows.Foundation.Size(640, 480);
-            Windows.Foundation.Size previewResolution = new Windows.Foundation.Size(640, 480);
-            Windows.Foundation.Size captureResolution = new Windows.Foundation.Size(640, 480);
-
-            PhotoCaptureDevice d = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
-
-            await d.SetPreviewResolutionAsync(previewResolution);
-            await d.SetCaptureResolutionAsync(captureResolution);
-
-            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorLocation == CameraSensorLocation.Back ? d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
-
-            Device = d;
-        }
-
-        public void UnitializeCamera()
-        {
-            if (Device != null)
-            {
-                Device.Dispose();
-                Device = null;
-            }
-        }
     }
 }
