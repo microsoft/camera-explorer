@@ -1,9 +1,16 @@
-﻿using System;
-using System.Windows.Navigation;
+﻿/*
+ * Copyright © 2012 Nokia Corporation. All rights reserved.
+ * Nokia and Nokia Connecting People are registered trademarks of Nokia Corporation. 
+ * Other product and company names mentioned herein may be trademarks
+ * or trade names of their respective owners. 
+ * See LICENSE.TXT for license information.
+ */
+
 using Microsoft.Phone.Controls;
 using Microsoft.Xna.Framework.Media;
+using System;
 using System.Windows.Media.Imaging;
-using System.IO;
+using System.Windows.Navigation;
 
 namespace CameraExplorer
 {
