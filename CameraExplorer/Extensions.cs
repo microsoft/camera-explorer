@@ -8,8 +8,20 @@
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Extensions class contains function extensions to existing types.
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Adds functionality to enumerations to print enumeration value name with
+        /// camelcase letters replaced with lower case letters and spaces added between words.
+        /// 
+        /// For example "RedEyeReduction" becomes "Red eye reduction".
+        /// </summary>
+        /// <typeparam name="T">Enumeration type</typeparam>
+        /// <param name="enumeration">Enumeration instance</param>
+        /// <returns></returns>
         public static string EnumerationToParameterName<T>(this T enumeration)
         {
             string name = enumeration.ToString();

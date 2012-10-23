@@ -13,6 +13,10 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Abstract parameter base class for range type parameters.
+    /// </summary>
+    /// <typeparam name="T">Type of the parameter minimum, maximum and value.</typeparam>
     public abstract class RangeParameter<T> : Parameter
     {
         private Guid _propertyId;
@@ -28,6 +32,10 @@ namespace CameraExplorer
             Refresh();
         }
 
+        /// <summary>
+        /// Reads the range minimum, maximum and current value. Sets Supported and Modifiable
+        /// appropriately.
+        /// </summary>
         public override void Refresh()
         {
             try
@@ -62,6 +70,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Range minimum value.
+        /// </summary>
         public T Minimum
         {
             get
@@ -80,6 +91,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Range maximum value.
+        /// </summary>
         public T Maximum
         {
             get
@@ -98,6 +112,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Range current value.
+        /// </summary>
         public T Value
         {
             get
@@ -126,6 +143,9 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// Exposure compensation parameter, acts on KnownCameraPhotoProperties.ExposureCompensation.
+    /// </summary>
     public class ExposureCompensationParameter : RangeParameter<Int32>
     {
         public ExposureCompensationParameter(PhotoCaptureDevice device)
@@ -133,12 +153,18 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Default value for exposure compensation is the middle value in the supported range.
+        /// </summary>
         public override void SetDefault()
         {
             Value = (Int32)(Minimum + (Maximum - Minimum) / 2);
         }
     }
 
+    /// <summary>
+    /// Exposure compensation parameter, acts on KnownCameraPhotoProperties.FlashPower.
+    /// </summary>
     public class FlashPowerParameter : RangeParameter<UInt32>
     {
         public FlashPowerParameter(PhotoCaptureDevice device)
@@ -146,6 +172,9 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Default value for flash power is the middle value in the supported range.
+        /// </summary>
         public override void SetDefault()
         {
             Value = (UInt32)(Minimum + (Maximum - Minimum) / 2);

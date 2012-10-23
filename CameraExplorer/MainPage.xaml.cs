@@ -11,6 +11,11 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Application main page containing the viewfinder with overlays.
+    /// Two methods for capturing a photo are available: pressing a capture
+    /// icon on the screen and pressing the hardware shutter release key.
+    /// </summary>
     public partial class MainPage : PhoneApplicationPage
     {
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
@@ -32,6 +37,12 @@ namespace CameraExplorer
             _progressIndicator.IsIndeterminate = true;
         }
 
+        /// <summary>
+        /// If camera has not been initialized when navigating to this page, initialization
+        /// will be started asynchronously in this method. Once initialization has been
+        /// completed the camera will be set as a source to the VideoBrush element
+        /// declared in XAML. On-screen controls are enabled when camera has been initialized.
+        /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (_dataContext.Device == null)
@@ -48,7 +59,8 @@ namespace CameraExplorer
                 CenterX = 0.5,
                 CenterY = 0.5,
                 Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
-                    _dataContext.Device.SensorRotationInDegrees : - _dataContext.Device.SensorRotationInDegrees
+                           _dataContext.Device.SensorRotationInDegrees :
+                         - _dataContext.Device.SensorRotationInDegrees
             };
 
             videoBrush.SetSource(_dataContext.Device);
@@ -61,6 +73,10 @@ namespace CameraExplorer
             base.OnNavigatedTo(e);
         }
 
+        /// <summary>
+        /// On-screen controls are disabled when navigating away from the viewfinder. This is because
+        /// we want the controls to default to disabled when arriving to the page again.
+        /// </summary>
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
             overlayComboBox.Opacity = 0;
@@ -71,6 +87,10 @@ namespace CameraExplorer
             base.OnNavigatingFrom(e);
         }
 
+        /// <summary>
+        /// Enables or disabled on-screen controls.
+        /// </summary>
+        /// <param name="enabled">True to enable controls, false to disable controls.</param>
         private void SetScreenButtonsEnabled(bool enabled)
         {
             foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
@@ -84,6 +104,10 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Enables or disables listening to hardware shutter release key events.
+        /// </summary>
+        /// <param name="enabled">True to enable listening, false to disable listening.</param>
         private void SetCameraButtonsEnabled(bool enabled)
         {
             if (enabled)
@@ -98,11 +122,20 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Clicking on the settings button begins navigating to the settings page.
+        /// </summary>
         private void settingsButton_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/SettingsPage.xaml", UriKind.Relative));
         }
 
+        /// <summary>
+        /// Clicking on sensor button disables camera capturing controls, uninitializes old
+        /// camera instance and initializes new camera instance using the other sensor. On-screen
+        /// controls and listening to hardware shutter release key is disabled while initializing the
+        /// sensor because capturing a photo is not possible at that time.
+        /// </summary>
         private async void sensorButton_Click(object sender, EventArgs e)
         {
             SetScreenButtonsEnabled(false);
@@ -135,7 +168,8 @@ namespace CameraExplorer
                 CenterX = 0.5,
                 CenterY = 0.5,
                 Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
-                           _dataContext.Device.SensorRotationInDegrees : _dataContext.Device.SensorRotationInDegrees + 180
+                           _dataContext.Device.SensorRotationInDegrees :
+                         - _dataContext.Device.SensorRotationInDegrees
             };
 
             videoBrush.SetSource(_dataContext.Device);
@@ -149,6 +183,9 @@ namespace CameraExplorer
             SetCameraButtonsEnabled(true);
         }
 
+        /// <summary>
+        /// Clicking on the capture button initiates autofocus and captures a photo.
+        /// </summary>
         private async void captureButton_Click(object sender, EventArgs e)
         {
             await AutoFocus();
@@ -156,11 +193,18 @@ namespace CameraExplorer
             await Capture();
         }
 
+        /// <summary>
+        /// Clicking on the about menu item initiates navigating to the about page.
+        /// </summary>
         private void aboutMenuItem_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
         }
 
+        /// <summary>
+        /// Starts displaying progress indicator.
+        /// </summary>
+        /// <param name="msg">Text message to display.</param>
         private void ShowProgress(String msg)
         {
             _progressIndicator.Text = msg;
@@ -169,6 +213,9 @@ namespace CameraExplorer
             SystemTray.SetProgressIndicator(this, _progressIndicator);
         }
 
+        /// <summary>
+        /// Stops displaying progress indicator.
+        /// </summary>
         private void HideProgress()
         {
             _progressIndicator.IsVisible = false;
@@ -176,6 +223,11 @@ namespace CameraExplorer
             SystemTray.SetProgressIndicator(this, _progressIndicator);
         }
 
+        /// <summary>
+        /// Initializes camera. Once initialized the instance is set to the DataContext.Device property
+        /// for further usage from this or other pages.
+        /// </summary>
+        /// <param name="sensorLocation">Camera sensor to initialize</param>
         private async Task InitializeCamera(CameraSensorLocation sensorLocation)
         {
             Windows.Foundation.Size initialResolution = new Windows.Foundation.Size(640, 480);
@@ -187,11 +239,16 @@ namespace CameraExplorer
             await d.SetPreviewResolutionAsync(previewResolution);
             await d.SetCaptureResolutionAsync(captureResolution);
 
-            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation, d.SensorLocation == CameraSensorLocation.Back ? d.SensorRotationInDegrees : -d.SensorRotationInDegrees);
+            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation,
+                          d.SensorLocation == CameraSensorLocation.Back ?
+                          d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
 
             _dataContext.Device = d;
         }
 
+        /// <summary>
+        /// Starts autofocusing, if supported. Capturing buttons are disabled while focusing.
+        /// </summary>
         private async Task AutoFocus()
         {
             if (!_capturing && PhotoCaptureDevice.IsFocusSupported(_dataContext.Device.SensorLocation))
@@ -208,6 +265,10 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Captures a photo. Photo data is stored to DataContext.ImageStream, and application
+        /// is navigated to the preview page after capturing.
+        /// </summary>
         private async Task Capture()
         {
             if (!_capturing)
@@ -230,11 +291,17 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Half-pressing the shutter key initiates autofocus.
+        /// </summary>
         private async void ShutterKeyHalfPressed(object sender, EventArgs e)
         {
             await AutoFocus();
         }
 
+        /// <summary>
+        /// Completely pressing the shutter key initiates capturing a photo.
+        /// </summary>
         private async void ShutterKeyPressed(object sender, EventArgs e)
         {
             await Capture();

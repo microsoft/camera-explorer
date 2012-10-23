@@ -14,6 +14,10 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// CameraExplorer.DataContext holds all application widely used instances, like parameters,
+    /// camera instance and image memory stream.
+    /// </summary>
     class DataContext : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -22,6 +26,9 @@ namespace CameraExplorer
         private PhotoCaptureDevice _device = null;
         private ObservableCollection<Parameter> _parameters = new ObservableCollection<Parameter>();
 
+        /// <summary>
+        /// Singleton instance accessor.
+        /// </summary>
         public static DataContext Singleton
         {
             get
@@ -35,6 +42,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Collection of camera parameters.
+        /// </summary>
         public ObservableCollection<Parameter> Parameters
         {
             get
@@ -57,6 +67,10 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Camera instance. Setting new camera instance to this property causes the Parameters
+        /// property to be updated as well with the new parameters from the new camera.
+        /// </summary>
         public PhotoCaptureDevice Device
         {
             get
@@ -118,6 +132,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Memory stream to hold the image data captured in MainPage but consumed in PreviewPage.
+        /// </summary>
         public MemoryStream ImageStream { get; set; }
     }
 }

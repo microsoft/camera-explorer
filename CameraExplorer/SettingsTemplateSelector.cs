@@ -11,6 +11,10 @@ using System.Windows.Controls;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Settings template selector selects the appropriate UI control tempalate for a parameter.
+    /// See the SettingsPage.xaml file for the template declarations.
+    /// </summary>
     public class SettingsTemplateSelector : ContentControl
     {
         public DataTemplate ArrayParameterTemplate { get; set; }
@@ -24,6 +28,12 @@ namespace CameraExplorer
             base.OnContentChanged(oldContent, newContent);
         }
 
+        /// <summary>
+        /// If parameter is not supported or modifiable, it is not displayed in the UI, and thus
+        /// the unsupported parameter template is used. If Parameter is supported and modifiable,
+        /// then the decision between the template is done on basis of the type of the parameter.
+        /// </summary>
+        /// <param name="item">Parameter instance</param>
         public DataTemplate SelectTemplate(object item)
         {
             Parameter parameter = item as Parameter;

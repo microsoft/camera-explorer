@@ -14,6 +14,10 @@ using System.Windows.Navigation;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Preview page displays the captured photo from DataContext.ImageStream and
+    /// has a button to save the image to phone's camera roll.
+    /// </summary>
     public partial class PreviewPage : PhoneApplicationPage
     {
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
@@ -26,6 +30,11 @@ namespace CameraExplorer
             DataContext = _dataContext;
         }
 
+        /// <summary>
+        /// When navigating to this page, if camera has not been initialized (for example returning from
+        /// tombstoning), application will navigate directly back to the main page. Otherwise the
+        /// DataContext.ImageStream will be set as the source for the Image control in XAML.
+        /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (_dataContext.Device == null)
@@ -42,10 +51,15 @@ namespace CameraExplorer
             base.OnNavigatedTo(e);
         }
 
+        /// <summary>
+        /// Clicking on the save button saves the photo in DataContext.ImageStream to media library
+        /// camera roll. Once image has been saved, the application will navigate back to the main page.
+        /// </summary>
         private void saveButton_Click(object sender, EventArgs e)
         {
             try
             {
+                // Reposition ImageStream to beginning, because it has been read already in the OnNavigatedTo method.
                 _dataContext.ImageStream.Position = 0;
 
                 MediaLibrary library = new MediaLibrary();

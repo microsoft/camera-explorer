@@ -16,6 +16,9 @@ using Microsoft.Phone.Shell;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Settings page displays UI controls for all instantiated parameter objects.
+    /// </summary>
     public partial class SettingsPage : PhoneApplicationPage
     {
         CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
@@ -27,6 +30,10 @@ namespace CameraExplorer
             DataContext = _dataContext;
         }
 
+        /// <summary>
+        /// When navigating to this page, if camera has not been initialized (for example returning from
+        /// tombstoning), application will navigate directly back to the main page.
+        /// </summary>
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             if (_dataContext.Device == null)
@@ -37,6 +44,9 @@ namespace CameraExplorer
             base.OnNavigatedTo(e);
         }
 
+        /// <summary>
+        /// Clicking on the reset button causes SetDefault to be called on all parameter instances.
+        /// </summary>
         private void resetButton_Click(object sender, EventArgs e)
         {
             SetScreenButtonsEnabled(false);
@@ -49,6 +59,10 @@ namespace CameraExplorer
             SetScreenButtonsEnabled(true);
         }
 
+        /// <summary>
+        /// Enables or disabled on-screen controls.
+        /// </summary>
+        /// <param name="enabled">True to enable controls, false to disable controls.</param>
         private void SetScreenButtonsEnabled(bool enabled)
         {
             foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)

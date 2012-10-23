@@ -3,6 +3,9 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Abstract base class for camera parameter handling.
+    /// </summary>
     public abstract class Parameter : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -19,6 +22,10 @@ namespace CameraExplorer
             _name = name;
         }
 
+        /// <summary>
+        /// Derived parameter classes can use this method to notify about property changes.
+        /// </summary>
+        /// <param name="name"></param>
         protected void NotifyPropertyChanged(string name)
         {
             if (PropertyChanged != null)
@@ -27,6 +34,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// PhotoCaptureDevice that this parameter was created from and will act on.
+        /// </summary>
         public PhotoCaptureDevice Device
         {
             get
@@ -35,6 +45,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Name of the parameter to be displayed in the UI.
+        /// </summary>
         public string Name
         {
             get
@@ -43,6 +56,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Path to the overlay icon source used in viewfinder.
+        /// </summary>
         public string OverlaySource
         {
             get
@@ -61,6 +77,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Is this parameter supported by the Device.
+        /// </summary>
         public bool Supported
         {
             get
@@ -79,6 +98,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Is this parameter modifiable in the Device.
+        /// </summary>
         public bool Modifiable
         {
             get
@@ -97,8 +119,14 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Read the parameter information from the Device.
+        /// </summary>
         public abstract void Refresh();
 
+        /// <summary>
+        /// Set parameter default value.
+        /// </summary>
         public abstract void SetDefault();
     }
 }

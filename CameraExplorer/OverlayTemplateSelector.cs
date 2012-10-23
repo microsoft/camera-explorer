@@ -11,6 +11,10 @@ using System.Windows.Controls;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Overlay template selector selects the overlay template for a parameter. See the
+    /// MainPage.xaml file for the template declarations.
+    /// </summary>
     public class OverlayTemplateSelector : ContentControl
     {
         public DataTemplate ParameterWithoutOverlayTemplate { get; set; }
@@ -23,6 +27,11 @@ namespace CameraExplorer
             base.OnContentChanged(oldContent, newContent);
         }
 
+        /// <summary>
+        /// If parameter has OverlaySource set then a template with an Image XAML control is selected,
+        /// otherwise a template without an Image control is used.
+        /// </summary>
+        /// <param name="item">Parameter instance</param>
         public DataTemplate SelectTemplate(object item)
         {
             if ((item as Parameter).OverlaySource != null)

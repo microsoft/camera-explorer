@@ -15,6 +15,9 @@ using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
 {
+    /// <summary>
+    /// Enumerator to enumerate through ArrayParameterOptions in an ArrayParameter.
+    /// </summary>
     public class ArrayParameterEnumerator : IEnumerator<ArrayParameterOption>
     {
         private ArrayParameter _arrayParameter;
@@ -27,6 +30,9 @@ namespace CameraExplorer
             _count = count;
         }
 
+        /// <summary>
+        /// Current option.
+        /// </summary>
         public object Current
         {
             get
@@ -35,6 +41,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Current option.
+        /// </summary>
         ArrayParameterOption IEnumerator<ArrayParameterOption>.Current
         {
             get
@@ -43,6 +52,10 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Step forward one item.
+        /// </summary>
+        /// <returns></returns>
         public bool MoveNext()
         {
             if (_index < _count - 1)
@@ -57,6 +70,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Reset to the beginning.
+        /// </summary>
         public void Reset()
         {
             _index = -1;
@@ -67,6 +83,9 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// ArrayParameterOption is a single item in an ArrayParameter.
+    /// </summary>
     public class ArrayParameterOption
     {
         private dynamic _value;
@@ -80,6 +99,9 @@ namespace CameraExplorer
             _overlaySource = overlaySource;
         }
 
+        /// <summary>
+        /// Camera property value related to this option.
+        /// </summary>
         public dynamic Value
         {
             get
@@ -88,6 +110,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Name of this option.
+        /// </summary>
         public string Name
         {
             get
@@ -96,6 +121,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Overlay icon path for this option.
+        /// </summary>
         public string OverlaySource
         {
             get
@@ -105,6 +133,9 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// Abstract parameter base class for array type parameters.
+    /// </summary>
     public abstract class ArrayParameter : Parameter, IReadOnlyCollection<ArrayParameterOption>
     {
         private List<ArrayParameterOption> _options = new List<ArrayParameterOption>();
@@ -123,6 +154,11 @@ namespace CameraExplorer
             _propertyId = propertyId;
         }
 
+        /// <summary>
+        /// Read parameter options and current value from Parameter.Device. Previous options
+        /// are discarded and new options shall be created in the abstract void PopulateOptions()
+        /// method.
+        /// </summary>
         public override void Refresh()
         {
             _refreshing = true;
@@ -156,11 +192,19 @@ namespace CameraExplorer
             _refreshing = false;
         }
 
+        /// <summary>
+        /// Get option for index.
+        /// </summary>
+        /// <param name="index">Option index</param>
+        /// <returns>Option</returns>
         public ArrayParameterOption Option(int index)
         {
             return _options[index];
         }
 
+        /// <summary>
+        /// Current option.
+        /// </summary>
         public ArrayParameterOption SelectedOption
         {
             get
@@ -192,6 +236,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Amount of options in this ArrayParameter.
+        /// </summary>
         public int Count
         {
             get
@@ -200,16 +247,27 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Get an enumerator to this ArrayParameter.
+        /// </summary>
+        /// <returns>Enumerator</returns>
         public IEnumerator<ArrayParameterOption> GetEnumerator()
         {
             return new ArrayParameterEnumerator(this, _options.Count);
         }
 
+        /// <summary>
+        /// Get an enumerator to this ArrayParameter.
+        /// </summary>
+        /// <returns>Enumerator</returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new ArrayParameterEnumerator(this, _options.Count);
         }
 
+        /// <summary>
+        /// Camera Guid that this ArrayParameter acts on.
+        /// </summary>
         protected Guid PropertyId
         {
             get
@@ -218,6 +276,9 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// List of options for this ArrayParameter.
+        /// </summary>
         protected List<ArrayParameterOption> Options
         {
             get
@@ -226,11 +287,26 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Abstract method to read the supported properties from the Parameter.Device.
+        /// This method must populate the Options parameter with all the supported
+        /// ArrayParameterOptions for the parameter in question. SelectedOption must be
+        /// set as well.
+        /// </summary>
         protected abstract void PopulateOptions();
 
+        /// <summary>
+        /// Abstract method to set a option as the current option. This method must set the
+        /// Value from the ArrayParameterOption in an appropriate way to the Parameter.Device.
+        /// </summary>
+        /// <param name="option">Option to set</param>
         protected abstract void SetOption(ArrayParameterOption option);
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported capture resolutions and changing the currently
+    /// active capture resolution.
+    /// </summary>
     public class CaptureResolutionParameter : ArrayParameter
     {
         public CaptureResolutionParameter(PhotoCaptureDevice device)
@@ -238,6 +314,10 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported capture resolutions from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// </summary>
         protected override void PopulateOptions()
         {
             IReadOnlyList<Windows.Foundation.Size> supportedValues = PhotoCaptureDevice.GetAvailableCaptureResolutions(Device.SensorLocation);
@@ -258,6 +338,10 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected async override void SetOption(ArrayParameterOption option)
         {
             if (Modifiable)
@@ -270,12 +354,19 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Default option for capture resolution is the first supported resolution.
+        /// </summary>
         public override void SetDefault()
         {
             SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported exposure time values and changing the currently
+    /// active exposure time.
+    /// </summary>
     public class ExposureTimeParameter : ArrayParameter
     {
         public ExposureTimeParameter(PhotoCaptureDevice device)
@@ -283,6 +374,13 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported exposure time values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// 
+        /// Exposure time auto value is set by setting the value in PhotoCaptureDevice API to
+        /// null, therefore the separate handling for option "Auto".
+        /// </summary>
         protected override void PopulateOptions()
         {
             ArrayParameterOption option = new ArrayParameterOption(null, "Auto", "Assets/Icons/overlay.exposuretime.auto.png");
@@ -317,17 +415,28 @@ namespace CameraExplorer
             SelectedOption = selectedOption;
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for exposure time is the first supported value.
+        /// </summary>
         public override void SetDefault()
         {
             SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported ISO values and changing the currently
+    /// active ISO setting.
+    /// </summary>
     public class IsoParameter : ArrayParameter
     {
         public IsoParameter(PhotoCaptureDevice device)
@@ -335,6 +444,13 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported ISO values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// 
+        /// ISO auto value is set by setting the value in PhotoCaptureDevice API to
+        /// null, therefore the separate handling for option "Auto".
+        /// </summary>
         protected override void PopulateOptions()
         {
             ArrayParameterOption option = new ArrayParameterOption(null, "Auto", "Assets/Icons/overlay.iso.auto.png");
@@ -367,24 +483,28 @@ namespace CameraExplorer
             SelectedOption = selectedOption;
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for ISO is the first supported value.
+        /// </summary>
         public override void SetDefault()
         {
-            if (Options.Count > 0)
-            {
-                SelectedOption = Options.First();
-            }
-            else
-            {
-                SelectedOption = null;
-            }
+            SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported scene mode values and changing the currently
+    /// active scene mode.
+    /// </summary>
     public class SceneModeParameter : ArrayParameter
     {
         public SceneModeParameter(PhotoCaptureDevice device)
@@ -392,6 +512,10 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported scene mode values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// </summary>
         protected override void PopulateOptions()
         {
             IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
@@ -412,11 +536,18 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for scene mode is either Auto if it is supported, or the last supported value.
+        /// </summary>
         public override void SetDefault()
         {
             bool found = false;
@@ -438,6 +569,10 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported flash mode values and changing the currently
+    /// active scene mode.
+    /// </summary>
     public class FlashModeParameter : ArrayParameter
     {
         public FlashModeParameter(PhotoCaptureDevice device)
@@ -445,6 +580,10 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported flash mode values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// </summary>
         protected override void PopulateOptions()
         {
             IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
@@ -465,11 +604,18 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, (FlashMode)option.Value);
         }
 
+        /// <summary>
+        /// Default option for flash mode is either Auto if it is supported, or none.
+        /// </summary>
         public override void SetDefault()
         {
             bool found = false;
@@ -491,6 +637,10 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported focus illumination mode values and changing the currently
+    /// active focus illumination.
+    /// </summary>
     public class FocusIlluminationModeParameter : ArrayParameter
     {
         public FocusIlluminationModeParameter(PhotoCaptureDevice device)
@@ -498,6 +648,10 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported focus illumination mode values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// </summary>
         protected override void PopulateOptions()
         {
             IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
@@ -518,11 +672,18 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for focus illumination mode is either Auto if it is supported, or none.
+        /// </summary>
         public override void SetDefault()
         {
             bool found = false;
@@ -544,6 +705,10 @@ namespace CameraExplorer
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported white balance preset values and changing the currently
+    /// active white balance preset.
+    /// </summary>
     public class WhiteBalancePresetParameter : ArrayParameter
     {
         public WhiteBalancePresetParameter(PhotoCaptureDevice device)
@@ -551,6 +716,13 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported white balance preset values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// 
+        /// White balace preset auto value is set by setting the value in PhotoCaptureDevice API to
+        /// null, therefore the separate handling for option "Auto".
+        /// </summary>
         protected override void PopulateOptions()
         {
             ArrayParameterOption option = new ArrayParameterOption(null, "Auto");
@@ -578,17 +750,28 @@ namespace CameraExplorer
             SelectedOption = selectedOption;
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for white balance preset is the first supported value.
+        /// </summary>
         public override void SetDefault()
         {
             SelectedOption = Options.Count > 0 ? Options.First() : null;
         }
     }
 
+    /// <summary>
+    /// Parameter to handle reading supported autofocus range values and changing the currently
+    /// active white balance preset.
+    /// </summary>
     public class AutoFocusRangeParameter : ArrayParameter
     {
         public AutoFocusRangeParameter(PhotoCaptureDevice device)
@@ -596,6 +779,10 @@ namespace CameraExplorer
         {
         }
 
+        /// <summary>
+        /// Reads supported autofocus range values from Parameter.Device and populates
+        /// ArrayParameter.Options accordingly. Sets the SelectedOption as well.
+        /// </summary>
         protected override void PopulateOptions()
         {
             IReadOnlyList<object> supportedValues = PhotoCaptureDevice.GetSupportedPropertyValues(Device.SensorLocation, PropertyId);
@@ -616,11 +803,18 @@ namespace CameraExplorer
             }
         }
 
+        /// <summary>
+        /// Handles setting the given option as currently active one.
+        /// </summary>
+        /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
             Device.SetProperty(PropertyId, option.Value);
         }
 
+        /// <summary>
+        /// Default option for autofocus range is either Normal if it is supported, or null.
+        /// </summary>
         public override void SetDefault()
         {
             bool found = false;
