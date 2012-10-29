@@ -39,7 +39,7 @@
                 </Canvas.Background>
             </Canvas>
 
-            <ComboBox x:Name="overlayComboBox" ItemsSource="{Binding Settings.Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10" Opacity="0">
+            <ComboBox x:Name="overlayComboBox" ItemsSource="{Binding Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10" Opacity="0">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
                         <local:OverlayTemplateSelector Content="{Binding}">
