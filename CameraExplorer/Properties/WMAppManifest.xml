@@ -38,6 +38,11 @@
         </TemplateFlip>
       </PrimaryToken>
     </Tokens>
+    <Extensions>
+      <Extension ExtensionName="Camera_Capture_App"
+             ConsumerID="{5B04B775-356B-4AA0-AAF8-6491FFEA5631}"
+             TaskID="_default" />
+    </Extensions>
     <ScreenResolutions>
       <ScreenResolution Name="ID_RESOLUTION_WVGA" />
       <ScreenResolution Name="ID_RESOLUTION_WXGA" />
