@@ -3,8 +3,12 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using Windows.Phone.Media.Capture;
@@ -21,6 +25,9 @@ namespace CameraExplorer
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
         private ProgressIndicator _progressIndicator = new ProgressIndicator();
         private bool _capturing = false;
+        private Semaphore _focusSemaphore = new Semaphore(1, 1);
+        private bool _manuallyFocused = false;
+        private Windows.Foundation.Size _focusRegionSize = new Windows.Foundation.Size(50, 50);
 
         public MainPage()
         {
@@ -31,6 +38,7 @@ namespace CameraExplorer
             menuItem.IsEnabled = false;
             ApplicationBar.MenuItems.Add(menuItem);
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
+            VideoCanvas.Tap += new EventHandler<GestureEventArgs>(videoCanvas_Tap);
 
             DataContext = _dataContext;
 
@@ -188,7 +196,10 @@ namespace CameraExplorer
         /// </summary>
         private async void captureButton_Click(object sender, EventArgs e)
         {
-            await AutoFocus();
+            if (!_manuallyFocused)
+            {
+                await AutoFocus();
+            }
 
             await Capture();
         }
@@ -199,6 +210,42 @@ namespace CameraExplorer
         private void aboutMenuItem_Click(object sender, EventArgs e)
         {
             NavigationService.Navigate(new Uri("/AboutPage.xaml", UriKind.Relative));
+        }
+
+        /// <summary>
+        /// Set autofocus area to tap location and refocus.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private async void videoCanvas_Tap(object sender, GestureEventArgs e)
+        {
+            System.Windows.Point tapPoint = e.GetPosition(VideoCanvas);
+            if (_focusSemaphore.WaitOne(0))
+            {
+                double xRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Width;
+                double yRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Height; 
+                Windows.Foundation.Point origin = new Windows.Foundation.Point(
+                    (tapPoint.X - _focusRegionSize.Width / 2) / xRatio,
+                    (tapPoint.Y - _focusRegionSize.Height / 2) / yRatio);
+                Windows.Foundation.Rect focusrect = new Windows.Foundation.Rect(origin, _focusRegionSize);
+                Windows.Foundation.Rect viewPortRect = new Windows.Foundation.Rect(0, 0, _dataContext.Device.PreviewResolution.Width, _dataContext.Device.PreviewResolution.Height);
+                focusrect.Intersect(viewPortRect);
+                _dataContext.Device.FocusRegion = focusrect;
+
+                CameraFocusStatus status = await _dataContext.Device.FocusAsync();
+                if (status == CameraFocusStatus.Locked)
+                {
+                    _manuallyFocused = true;
+                    _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters,
+                        AutoFocusParameters.Exposure & AutoFocusParameters.Focus & AutoFocusParameters.WhiteBalance);
+                }
+                else
+                {
+                    _manuallyFocused = false;
+                    _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
+                }
+                _focusSemaphore.Release();
+            }
         }
 
         /// <summary>
@@ -289,14 +336,20 @@ namespace CameraExplorer
 
                 NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
             }
+            _manuallyFocused = false;
+            _dataContext.Device.FocusRegion = null;
+            _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
         }
 
         /// <summary>
-        /// Half-pressing the shutter key initiates autofocus.
+        /// Half-pressing the shutter key initiates autofocus unless tapped to focus.
         /// </summary>
         private async void ShutterKeyHalfPressed(object sender, EventArgs e)
         {
-            await AutoFocus();
+            if (!_manuallyFocused)
+            {
+                await AutoFocus();
+            }
         }
 
         /// <summary>

@@ -33,7 +33,7 @@
         </StackPanel>
 
         <Grid x:Name="ContentPanel" Grid.Row="1">
-            <Canvas>
+            <Canvas x:Name="VideoCanvas">
                 <Canvas.Background>
                     <VideoBrush x:Name="videoBrush"/>
                 </Canvas.Background>
