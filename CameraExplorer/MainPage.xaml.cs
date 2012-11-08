@@ -8,9 +8,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
+using System.Windows.Shapes;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
@@ -27,7 +29,9 @@ namespace CameraExplorer
         private bool _capturing = false;
         private Semaphore _focusSemaphore = new Semaphore(1, 1);
         private bool _manuallyFocused = false;
-        private Windows.Foundation.Size _focusRegionSize = new Windows.Foundation.Size(50, 50);
+        private Windows.Foundation.Size _focusRegionSize = new Windows.Foundation.Size(80, 80);
+        private SolidColorBrush _notFocusedBrush = new SolidColorBrush(Colors.Red);
+        private SolidColorBrush _focusedBrush = new SolidColorBrush(Colors.Green);
 
         public MainPage()
         {
@@ -219,22 +223,41 @@ namespace CameraExplorer
         /// <param name="e"></param>
         private async void videoCanvas_Tap(object sender, GestureEventArgs e)
         {
-            System.Windows.Point tapPoint = e.GetPosition(VideoCanvas);
+            System.Windows.Point uiTapPoint = e.GetPosition(VideoCanvas);
             if (_focusSemaphore.WaitOne(0))
             {
-                double xRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Width;
-                double yRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Height; 
-                Windows.Foundation.Point origin = new Windows.Foundation.Point(
-                    (tapPoint.X - _focusRegionSize.Width / 2) / xRatio,
-                    (tapPoint.Y - _focusRegionSize.Height / 2) / yRatio);
-                Windows.Foundation.Rect focusrect = new Windows.Foundation.Rect(origin, _focusRegionSize);
+                // switch tap point axes, the focus region is set in landscape
+                Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.Y, _dataContext.Device.PreviewResolution.Height - uiTapPoint.X);
+
+                // from here on out the coordinate axes are in landscape
+                double xRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Width;
+                double yRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Height;
+
+                // adjust to center focus on the tap point
+                Windows.Foundation.Point displayOrigin = new Windows.Foundation.Point(
+                    tapPoint.X - _focusRegionSize.Width / 2,
+                    tapPoint.Y - _focusRegionSize.Height / 2);
+
+                // adjust for resolution difference between preview image and the canvas
+                Windows.Foundation.Point viewFinderOrigin = new Windows.Foundation.Point(displayOrigin.X / xRatio, displayOrigin.Y / yRatio);
+                Windows.Foundation.Rect focusrect = new Windows.Foundation.Rect(viewFinderOrigin, _focusRegionSize);
+
+                // clip to preview resolution
                 Windows.Foundation.Rect viewPortRect = new Windows.Foundation.Rect(0, 0, _dataContext.Device.PreviewResolution.Width, _dataContext.Device.PreviewResolution.Height);
                 focusrect.Intersect(viewPortRect);
+
                 _dataContext.Device.FocusRegion = focusrect;
+
+                // show a focus indicator, back to portrait axes
+                FocusIndicator.SetValue(Shape.StrokeProperty, _notFocusedBrush);
+                FocusIndicator.SetValue(Canvas.LeftProperty, uiTapPoint.X - _focusRegionSize.Width / 2);
+                FocusIndicator.SetValue(Canvas.TopProperty, uiTapPoint.Y - _focusRegionSize.Height / 2);
+                FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Visible);
 
                 CameraFocusStatus status = await _dataContext.Device.FocusAsync();
                 if (status == CameraFocusStatus.Locked)
                 {
+                    FocusIndicator.SetValue(Shape.StrokeProperty, _focusedBrush);
                     _manuallyFocused = true;
                     _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters,
                         AutoFocusParameters.Exposure & AutoFocusParameters.Focus & AutoFocusParameters.WhiteBalance);
@@ -338,6 +361,7 @@ namespace CameraExplorer
             }
             _manuallyFocused = false;
             _dataContext.Device.FocusRegion = null;
+            FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
             _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
         }
 
