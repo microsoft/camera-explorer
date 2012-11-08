@@ -195,6 +195,9 @@
     <Content Include="Assets\Icons\overlay.scenemode.sunset.png" />
     <Content Include="Assets\Icons\questionmark.png" />
     <Content Include="Assets\Icons\save.png" />
+    <Content Include="Assets\Lens.Screen-720p.png" />
+    <Content Include="Assets\Lens.Screen-WVGA.png" />
+    <Content Include="Assets\Lens.Screen-WXGA.png" />
     <Content Include="Assets\Tiles\FlipCycleTileLarge.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
