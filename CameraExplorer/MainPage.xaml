@@ -33,10 +33,11 @@
         </StackPanel>
 
         <Grid x:Name="ContentPanel" Grid.Row="1">
-            <Canvas>
+            <Canvas x:Name="VideoCanvas">
                 <Canvas.Background>
                     <VideoBrush x:Name="videoBrush"/>
                 </Canvas.Background>
+                <Rectangle x:Name="FocusIndicator" Stroke='Red' Opacity="0.7" Width="80" Height="80" StrokeThickness="5" Visibility="Collapsed"/>
             </Canvas>
 
             <ComboBox x:Name="overlayComboBox" ItemsSource="{Binding Parameters}" Width="48" HorizontalAlignment="Left" Margin="10,10,0,10" Opacity="0">
