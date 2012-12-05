@@ -226,12 +226,11 @@ namespace CameraExplorer
             System.Windows.Point uiTapPoint = e.GetPosition(VideoCanvas);
             if (_focusSemaphore.WaitOne(0))
             {
-                // switch tap point axes, the focus region is set in landscape
-                Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.Y, _dataContext.Device.PreviewResolution.Height - uiTapPoint.X);
+                // Get tap coordinates as a foundation point
+                Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.X, uiTapPoint.Y);
 
-                // from here on out the coordinate axes are in landscape
-                double xRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Width;
-                double yRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Height;
+                double xRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Width;
+                double yRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Height;
 
                 // adjust to center focus on the tap point
                 Windows.Foundation.Point displayOrigin = new Windows.Foundation.Point(
@@ -248,7 +247,7 @@ namespace CameraExplorer
 
                 _dataContext.Device.FocusRegion = focusrect;
 
-                // show a focus indicator, back to portrait axes
+                // show a focus indicator
                 FocusIndicator.SetValue(Shape.StrokeProperty, _notFocusedBrush);
                 FocusIndicator.SetValue(Canvas.LeftProperty, uiTapPoint.X - _focusRegionSize.Width / 2);
                 FocusIndicator.SetValue(Canvas.TopProperty, uiTapPoint.Y - _focusRegionSize.Height / 2);
