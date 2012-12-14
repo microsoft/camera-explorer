@@ -150,6 +150,9 @@ namespace CameraExplorer
         /// </summary>
         private async void sensorButton_Click(object sender, EventArgs e)
         {
+            FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
+            _manuallyFocused = false;
+
             SetScreenButtonsEnabled(false);
             SetCameraButtonsEnabled(false);
 
@@ -224,7 +227,7 @@ namespace CameraExplorer
         private async void videoCanvas_Tap(object sender, GestureEventArgs e)
         {
             System.Windows.Point uiTapPoint = e.GetPosition(VideoCanvas);
-            if (_focusSemaphore.WaitOne(0))
+            if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation) && _focusSemaphore.WaitOne(0))
             {
                 // Get tap coordinates as a foundation point
                 Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.X, uiTapPoint.Y);
