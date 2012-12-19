@@ -362,7 +362,10 @@ namespace CameraExplorer
                 NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
             }
             _manuallyFocused = false;
-            _dataContext.Device.FocusRegion = null;
+            if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation))
+            {
+                _dataContext.Device.FocusRegion = null;
+            }
             FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
             _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
         }
