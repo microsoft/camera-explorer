@@ -18,7 +18,7 @@ For more information on implementation and porting, visit the wiki pages:
 What's new
 ----------
 
-Version 1.0.0.1: Implemented tap-to-focus and Lens Picker integration
+Version 1.1.0.0: Implemented tap-to-focus and Lens Picker integration
 
 Version 1.0.0.0: First release of the Camera Explorer
 
