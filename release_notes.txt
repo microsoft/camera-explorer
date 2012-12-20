@@ -1,9 +1,10 @@
-Camera Explorer
-===============
+Camera Explorer v1.1
+====================
 
 Camera Explorer application demonstrates the use of the new advanced
 Windows Phone 8 camera API, the Windows.Phone.Media.Capture.PhotoCaptureDevice
-and the related classes and enumerations on Nokia Lumia devices.
+and the related classes and enumerations on Nokia Lumia devices. The updated 
+application adds tap-to-focus and Lens Picker integration.
 
 The example has been developed with Silverlight for Windows Phone devices
 and tested to work on Nokia Lumia devices with Windows Phone 8.
@@ -18,9 +19,9 @@ For more information on implementation and porting, visit the wiki pages:
 What's new
 ----------
 
-Version 1.1: Implemented tap-to-focus and Lens Picker integration
+Version 1.1.0.0: Implemented tap-to-focus and Lens Picker integration
 
-Version 1.0: First release of the Camera Explorer
+Version 1.0.0.0: First release of the Camera Explorer
 
 
 1. Usage
@@ -134,7 +135,8 @@ http://msdn.microsoft.com/en-us/library/gg588378%28v=vs.92%29.aspx
 -------------------------------------------------------------------------------
 
 See the license text file delivered with this project. The license file is also
-available online at http://projects.developer.nokia.com/cameraexplorer/browser/Licence.txt
+available online at 
+http://projects.developer.nokia.com/cameraexplorer/browser/Licence.txt
 
 
 7. Related documentation
@@ -148,4 +150,5 @@ describes the usage of PhotoCaptureDevice properties in more detail.
 8. Version history
 -------------------------------------------------------------------------------
 
+1.1.0.0 Tap-to-focus and Lens Picker integration added.
 1.0.0.0 First release
