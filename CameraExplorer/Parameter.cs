@@ -1,4 +1,12 @@
-﻿using System.ComponentModel;
+﻿/*
+ * Copyright © 2012-2013 Nokia Corporation. All rights reserved.
+ * Nokia and Nokia Connecting People are registered trademarks of Nokia Corporation. 
+ * Other product and company names mentioned herein may be trademarks
+ * or trade names of their respective owners. 
+ * See LICENSE.TXT for license information.
+ */
+
+using System.ComponentModel;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer

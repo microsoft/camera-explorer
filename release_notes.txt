@@ -1,4 +1,4 @@
-Camera Explorer v1.1
+Camera Explorer v1.2
 ====================
 
 Camera Explorer application demonstrates the use of the new advanced
@@ -19,9 +19,7 @@ For more information on implementation and porting, visit the wiki pages:
 What's new
 ----------
 
-Version 1.1.0.0: Implemented tap-to-focus and Lens Picker integration
-
-Version 1.0.0.0: First release of the Camera Explorer
+Version 1.2.0.0: Bug fix to tap-to-focus (Ticket #5)
 
 
 1. Usage
@@ -150,5 +148,6 @@ describes the usage of PhotoCaptureDevice properties in more detail.
 8. Version history
 -------------------------------------------------------------------------------
 
+1.2.0.0 Bug fix to tap-to-focus (Ticket #5)
 1.1.0.0 Tap-to-focus and Lens Picker integration added.
 1.0.0.0 First release

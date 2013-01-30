@@ -1,4 +1,12 @@
-﻿using Microsoft.Devices;
+﻿/*
+ * Copyright © 2012-2013 Nokia Corporation. All rights reserved.
+ * Nokia and Nokia Connecting People are registered trademarks of Nokia Corporation. 
+ * Other product and company names mentioned herein may be trademarks
+ * or trade names of their respective owners. 
+ * See LICENSE.TXT for license information.
+ */
+
+using Microsoft.Devices;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using System;
@@ -232,13 +240,14 @@ namespace CameraExplorer
                 // Get tap coordinates as a foundation point
                 Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.X, uiTapPoint.Y);
 
-                double xRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Width;
-                double yRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Height;
+
+                double xRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Width;
+                double yRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Height;
 
                 // adjust to center focus on the tap point
                 Windows.Foundation.Point displayOrigin = new Windows.Foundation.Point(
-                    tapPoint.X - _focusRegionSize.Width / 2,
-                    tapPoint.Y - _focusRegionSize.Height / 2);
+                            tapPoint.Y - _focusRegionSize.Width / 2,
+                            (VideoCanvas.ActualWidth - tapPoint.X) - _focusRegionSize.Height / 2);
 
                 // adjust for resolution difference between preview image and the canvas
                 Windows.Foundation.Point viewFinderOrigin = new Windows.Foundation.Point(displayOrigin.X / xRatio, displayOrigin.Y / yRatio);
