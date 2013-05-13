@@ -37,15 +37,15 @@ namespace CameraExplorer
         /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (_dataContext.Device == null)
-            {
-                NavigationService.GoBack();
-            }
-            else
+            if (_dataContext.ImageStream != null)
             {
                 _bitmap.SetSource(_dataContext.ImageStream);
 
                 image.Source = _bitmap;
+            }
+            else
+            {
+                NavigationService.GoBack();
             }
 
             base.OnNavigatedTo(e);

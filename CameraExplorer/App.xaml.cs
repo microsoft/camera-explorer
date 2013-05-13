@@ -84,9 +84,11 @@ namespace CameraExplorer
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
             CameraExplorer.DataContext d = CameraExplorer.DataContext.Singleton;
-
-            d.Device.Dispose();
-            d.Device = null;
+            if (d.Device != null)
+            {
+                d.Device.Dispose();
+                d.Device = null;
+            }
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
