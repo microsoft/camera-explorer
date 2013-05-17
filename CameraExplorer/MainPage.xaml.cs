@@ -65,14 +65,15 @@ namespace CameraExplorer
         /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (_dataContext.Device == null)
+            if (_dataContext.Device != null)
             {
-                ShowProgress("Initializing camera...");
-
-                await InitializeCamera(CameraSensorLocation.Back);
-
-                HideProgress();
+                _dataContext.Device.Dispose();
+                _dataContext.Device = null;
             }
+
+            ShowProgress("Initializing camera...");
+            await InitializeCamera(CameraSensorLocation.Back);
+            HideProgress();
 
             videoBrush.RelativeTransform = new CompositeTransform()
             {
@@ -99,6 +100,15 @@ namespace CameraExplorer
         /// </summary>
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
+
+            // release camera as soon as no longer needed in order to avoid green bitmap bug
+            // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
+            if ((_dataContext.Device != null) && e.Uri.ToString().Contains("PreviewPage.xaml"))
+            {
+                _dataContext.Device.Dispose();
+                _dataContext.Device = null;
+            }
+
             overlayComboBox.Opacity = 0;
 
             SetScreenButtonsEnabled(false);
@@ -325,6 +335,7 @@ namespace CameraExplorer
                           d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
 
             _dataContext.Device = d;
+
         }
 
         /// <summary>
@@ -352,6 +363,8 @@ namespace CameraExplorer
         /// </summary>
         private async Task Capture()
         {
+            bool goToPreview = false;
+
             if (!_capturing)
             {
                 _capturing = true;
@@ -368,7 +381,9 @@ namespace CameraExplorer
 
                 _capturing = false;
 
-                NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
+                // defer navigation, we're releasign the camera device there so following .Device calls must still work
+				// at least until the next cleanup, they're clearly not needed since the .Device is released
+                goToPreview = true;
             }
             _manuallyFocused = false;
             if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation))
@@ -377,6 +392,11 @@ namespace CameraExplorer
             }
             FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
             _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
+
+            if (goToPreview)
+            {
+                NavigationService.Navigate(new Uri("/PreviewPage.xaml", UriKind.Relative));
+            }
         }
 
         /// <summary>
