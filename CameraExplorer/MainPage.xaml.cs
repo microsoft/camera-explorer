@@ -65,14 +65,15 @@ namespace CameraExplorer
         /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (_dataContext.Device == null)
+            if (_dataContext.Device != null)
             {
-                ShowProgress("Initializing camera...");
-
-                await InitializeCamera(CameraSensorLocation.Back);
-
-                HideProgress();
+                _dataContext.Device.Dispose();
+                _dataContext.Device = null;
             }
+
+            ShowProgress("Initializing camera...");
+            await InitializeCamera(CameraSensorLocation.Back);
+            HideProgress();
 
             videoBrush.RelativeTransform = new CompositeTransform()
             {
@@ -100,9 +101,15 @@ namespace CameraExplorer
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
 
+<<<<<<< HEAD
             // release camera to avoid green bitmap bug
             // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
             if (_dataContext.Device != null)
+=======
+            // release camera as soon as no longer needed in order to avoid green bitmap bug
+            // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
+            if ((_dataContext.Device != null) && e.Uri.ToString().Contains("PreviewPage.xaml"))
+>>>>>>> fixes
             {
                 _dataContext.Device.Dispose();
                 _dataContext.Device = null;
@@ -334,6 +341,7 @@ namespace CameraExplorer
                           d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
 
             _dataContext.Device = d;
+
         }
 
         /// <summary>
