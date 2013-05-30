@@ -9,6 +9,7 @@
 using Microsoft.Phone.Controls;
 using Microsoft.Xna.Framework.Media;
 using System;
+using System.IO.IsolatedStorage;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
@@ -63,12 +64,23 @@ namespace CameraExplorer
                 _dataContext.ImageStream.Position = 0;
 
                 MediaLibrary library = new MediaLibrary();
-
                 library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString() + ".jpg", _dataContext.ImageStream);
+
+                //
+                using (var isolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    var files = isolatedStorage.GetFileNames("CameraExplorer_*.jpg");
+                    foreach (string file in files)
+                    {
+                        isolatedStorage.DeleteFile(file);
+                        System.Diagnostics.Debug.WriteLine("Temp file cleanup: " + file);
+                    }
+                }
+
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Saving picture to camera roll failed");
+                System.Diagnostics.Debug.WriteLine("Saving picture to camera roll failed: " + ex.HResult.ToString("x8") + " - " + ex.Message);
             }
 
             NavigationService.GoBack();

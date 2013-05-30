@@ -101,15 +101,9 @@ namespace CameraExplorer
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
 
-<<<<<<< HEAD
-            // release camera to avoid green bitmap bug
-            // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
-            if (_dataContext.Device != null)
-=======
             // release camera as soon as no longer needed in order to avoid green bitmap bug
             // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
             if ((_dataContext.Device != null) && e.Uri.ToString().Contains("PreviewPage.xaml"))
->>>>>>> fixes
             {
                 _dataContext.Device.Dispose();
                 _dataContext.Device = null;
