@@ -64,16 +64,16 @@ namespace CameraExplorer
                 _dataContext.ImageStream.Position = 0;
 
                 MediaLibrary library = new MediaLibrary();
-                library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString() + ".jpg", _dataContext.ImageStream);
-
-                //
+                library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".jpg", _dataContext.ImageStream);
+                
+                // There should be no temporary file left behind
                 using (var isolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
                     var files = isolatedStorage.GetFileNames("CameraExplorer_*.jpg");
                     foreach (string file in files)
                     {
                         isolatedStorage.DeleteFile(file);
-                        System.Diagnostics.Debug.WriteLine("Temp file cleanup: " + file);
+                        //System.Diagnostics.Debug.WriteLine("Temp file deleted: " + file);
                     }
                 }
 

@@ -65,15 +65,12 @@ namespace CameraExplorer
         /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (_dataContext.Device != null)
+            if (_dataContext.Device == null)
             {
-                _dataContext.Device.Dispose();
-                _dataContext.Device = null;
+                ShowProgress("Initializing camera...");
+                await InitializeCamera(CameraSensorLocation.Back);
+                HideProgress();
             }
-
-            ShowProgress("Initializing camera...");
-            await InitializeCamera(CameraSensorLocation.Back);
-            HideProgress();
 
             videoBrush.RelativeTransform = new CompositeTransform()
             {
