@@ -65,6 +65,24 @@ namespace CameraExplorer
         }
 
         /// <summary>
+        /// Name of the parameter in application settings.
+        /// </summary>
+        public string ParameterSettingName
+        {
+            get
+            {
+                if (Device.SensorLocation == CameraSensorLocation.Back)
+                {
+                    return "Back " + Name;
+                }
+                else
+                {
+                    return "Front " + Name;
+                }
+            }
+        }
+
+        /// <summary>
         /// Path to the overlay icon source used in viewfinder.
         /// </summary>
         public string OverlaySource
@@ -136,5 +154,21 @@ namespace CameraExplorer
         /// Set parameter default value.
         /// </summary>
         public abstract void SetDefault();
+
+        /// <summary>
+        /// Set parameter to saved or default value.
+        /// </summary>
+        public abstract void SetSavedOrDefault();
+
+        /// <summary>
+        /// Save parameter to application settings.
+        /// </summary>
+        public abstract void Save();
+
+        /// <summary>
+        /// Load parameter to application settings.
+        /// </summary>
+        /// <returns>true if setting was loaded successfully, otherwise false.</returns>
+        public abstract bool Load();
     }
 }

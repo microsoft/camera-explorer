@@ -10,6 +10,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.IO.IsolatedStorage;
 using Windows.Phone.Media.Capture;
 
 namespace CameraExplorer
@@ -23,6 +24,7 @@ namespace CameraExplorer
         public event PropertyChangedEventHandler PropertyChanged;
 
         private static DataContext _singleton;
+        private static IsolatedStorageSettings _settings = IsolatedStorageSettings.ApplicationSettings;
         private PhotoCaptureDevice _device = null;
         private ObservableCollection<Parameter> _parameters = new ObservableCollection<Parameter>();
 
@@ -57,7 +59,6 @@ namespace CameraExplorer
                 if (_parameters != value)
                 {
                     _parameters = value;
-
 
                     if (PropertyChanged != null)
                     {
@@ -95,7 +96,7 @@ namespace CameraExplorer
                                 try
                                 {
                                     parameter.Refresh();
-                                    parameter.SetDefault();
+                                    parameter.SetSavedOrDefault();
 
                                     newParameters.Add(parameter);
                                 }
@@ -129,6 +130,17 @@ namespace CameraExplorer
                         PropertyChanged(this, new PropertyChangedEventArgs("Device"));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Settings accessors.
+        /// </summary>
+        public static IsolatedStorageSettings Settings
+        {
+            get
+            {
+                return _settings;
             }
         }
 

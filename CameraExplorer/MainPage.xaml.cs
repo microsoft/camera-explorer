@@ -41,20 +41,26 @@ namespace CameraExplorer
         private SolidColorBrush _notFocusedBrush = new SolidColorBrush(Colors.Red);
         private SolidColorBrush _focusedBrush = new SolidColorBrush(Colors.Green);
 
+        private ApplicationBarIconButton _sensorButton = null;
+        private ApplicationBarIconButton _captureButton = null;
+        private ApplicationBarIconButton _settingsButton = null;
+
         public MainPage()
         {
             InitializeComponent();
 
-            ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem();
-            menuItem.Text = "about";
-            menuItem.IsEnabled = false;
-            ApplicationBar.MenuItems.Add(menuItem);
-            menuItem.Click += new EventHandler(aboutMenuItem_Click);
             VideoCanvas.Tap += new EventHandler<GestureEventArgs>(videoCanvas_Tap);
 
             DataContext = _dataContext;
 
             _progressIndicator.IsIndeterminate = true;
+
+            CreateAppBar();
+            ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem();
+            menuItem.Text = "about";
+            menuItem.IsEnabled = false;
+            ApplicationBar.MenuItems.Add(menuItem);
+            menuItem.Click += new EventHandler(aboutMenuItem_Click);
         }
 
         /// <summary>
@@ -97,7 +103,6 @@ namespace CameraExplorer
         /// </summary>
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-
             // release camera as soon as no longer needed in order to avoid green bitmap bug
             // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
             if ((_dataContext.Device != null) && e.Uri.ToString().Contains("PreviewPage.xaml"))
@@ -247,7 +252,6 @@ namespace CameraExplorer
                 // Get tap coordinates as a foundation point
                 Windows.Foundation.Point tapPoint = new Windows.Foundation.Point(uiTapPoint.X, uiTapPoint.Y);
 
-
                 double xRatio = VideoCanvas.ActualHeight / _dataContext.Device.PreviewResolution.Width;
                 double yRatio = VideoCanvas.ActualWidth / _dataContext.Device.PreviewResolution.Height;
 
@@ -319,20 +323,14 @@ namespace CameraExplorer
         private async Task InitializeCamera(CameraSensorLocation sensorLocation)
         {
             Windows.Foundation.Size initialResolution = new Windows.Foundation.Size(640, 480);
-            Windows.Foundation.Size previewResolution = new Windows.Foundation.Size(640, 480);
-            Windows.Foundation.Size captureResolution = new Windows.Foundation.Size(640, 480);
 
             PhotoCaptureDevice d = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
-
-            await d.SetPreviewResolutionAsync(previewResolution);
-            await d.SetCaptureResolutionAsync(captureResolution);
 
             d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation,
                           d.SensorLocation == CameraSensorLocation.Back ?
                           d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
 
             _dataContext.Device = d;
-
         }
 
         /// <summary>
@@ -378,10 +376,11 @@ namespace CameraExplorer
 
                 _capturing = false;
 
-                // defer navigation, we're releasign the camera device there so following .Device calls must still work
-				// at least until the next cleanup, they're clearly not needed since the .Device is released
+                // Defer navigation as it will release the camera device and the
+				// following Device calls must still work.
                 goToPreview = true;
             }
+			
             _manuallyFocused = false;
             if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation))
             {
@@ -397,14 +396,16 @@ namespace CameraExplorer
         }
 
         /// <summary>
-        /// Half-pressing the shutter key initiates autofocus unless tapped to focus.
+        /// Half-pressing the shutter key initiates autofocus.
         /// </summary>
         private async void ShutterKeyHalfPressed(object sender, EventArgs e)
         {
-            if (!_manuallyFocused)
+            if (_manuallyFocused)
             {
-                await AutoFocus();
+                _manuallyFocused = false;
             }
+            FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
+            await AutoFocus();
         }
 
         /// <summary>
@@ -413,6 +414,37 @@ namespace CameraExplorer
         private async void ShutterKeyPressed(object sender, EventArgs e)
         {
             await Capture();
+        }
+
+        /// <summary>
+        /// Creates an application bar based on the amount of sensors.
+        /// </summary>
+        private void CreateAppBar()
+        {
+            ApplicationBar appBar = new ApplicationBar();
+
+            if (PhotoCaptureDevice.AvailableSensorLocations.Count > 1)
+            {
+                _sensorButton = new ApplicationBarIconButton(new Uri("Assets/Icons/appbar.sensor.png", UriKind.Relative));
+                _sensorButton.Click += new EventHandler(sensorButton_Click);
+                _sensorButton.Text = "sensor";
+                _sensorButton.IsEnabled = false;
+                appBar.Buttons.Add(_sensorButton);
+            }
+
+            _captureButton = new ApplicationBarIconButton(new Uri("Assets/Icons/appbar.feature.camera.rest.png", UriKind.Relative));
+            _captureButton.Click += new EventHandler(captureButton_Click);
+            _captureButton.Text = "capture";
+            _captureButton.IsEnabled = false;
+            appBar.Buttons.Add(_captureButton);
+
+            _settingsButton = new ApplicationBarIconButton(new Uri("Assets/Icons/appbar.feature.settings.rest.png", UriKind.Relative));
+            _settingsButton.Click += new EventHandler(settingsButton_Click);
+            _settingsButton.Text = "settings";
+            _settingsButton.IsEnabled = false;
+            appBar.Buttons.Add(_settingsButton);
+
+            ApplicationBar = appBar;
         }
     }
 }

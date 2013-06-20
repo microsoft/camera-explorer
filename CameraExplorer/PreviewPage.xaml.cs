@@ -9,7 +9,6 @@
 using Microsoft.Phone.Controls;
 using Microsoft.Xna.Framework.Media;
 using System;
-using System.IO.IsolatedStorage;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
@@ -32,16 +31,15 @@ namespace CameraExplorer
         }
 
         /// <summary>
-        /// When navigating to this page, if camera has not been initialized (for example returning from
-        /// tombstoning), application will navigate directly back to the main page. Otherwise the
-        /// DataContext.ImageStream will be set as the source for the Image control in XAML.
+        /// When navigating to this page, DataContext.ImageStream will be set as the source
+        /// for the Image control in XAML. If ImageStream is null, application will navigate
+        /// directly back to the main page.
         /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (_dataContext.ImageStream != null)
             {
                 _bitmap.SetSource(_dataContext.ImageStream);
-
                 image.Source = _bitmap;
             }
             else
@@ -65,18 +63,6 @@ namespace CameraExplorer
 
                 MediaLibrary library = new MediaLibrary();
                 library.SavePictureToCameraRoll("CameraExplorer_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".jpg", _dataContext.ImageStream);
-                
-                // There should be no temporary file left behind
-                using (var isolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
-                {
-                    var files = isolatedStorage.GetFileNames("CameraExplorer_*.jpg");
-                    foreach (string file in files)
-                    {
-                        isolatedStorage.DeleteFile(file);
-                        //System.Diagnostics.Debug.WriteLine("Temp file deleted: " + file);
-                    }
-                }
-
             }
             catch (Exception ex)
             {

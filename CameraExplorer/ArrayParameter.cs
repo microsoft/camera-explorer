@@ -232,6 +232,8 @@ namespace CameraExplorer
                         NotifyPropertyChanged("SelectedOption");
                         NotifyPropertyChanged("OverlaySource");
                     }
+
+                    Save();
                 }
             }
         }
@@ -301,6 +303,61 @@ namespace CameraExplorer
         /// </summary>
         /// <param name="option">Option to set</param>
         protected abstract void SetOption(ArrayParameterOption option);
+
+        /// <summary>
+        /// Set saved value if exists, otherwise set to default.
+        /// </summary>
+        public override void SetSavedOrDefault()
+        {
+            System.Diagnostics.Debug.WriteLine("Setting saved or default value to setting " + Name);
+            if (!Load())
+            {
+                SetDefault();
+            }
+        }
+
+        /// <summary>
+        /// Save parameter to application settings.
+        /// </summary>
+        public override void Save()
+        {
+            if (SelectedOption == null || SelectedOption.Value == null) return;
+
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                if ((string)DataContext.Settings[ParameterSettingName] != SelectedOption.Name)
+                {
+                    DataContext.Settings[ParameterSettingName] = SelectedOption.Name;
+                }
+            }
+            else
+            {
+                DataContext.Settings.Add(ParameterSettingName, SelectedOption.Name);
+            }
+        }
+
+        /// <summary>
+        /// Load parameter from application settings.
+        /// </summary>
+        /// <returns>true if setting was loaded successfully, otherwise false.</returns>
+        public override bool Load()
+        {
+            bool ret = false;
+
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                string name = DataContext.Settings[ParameterSettingName].ToString();
+                for (int i = 0; i < Options.Count; i++)
+                {
+                    if (Options[i].Name.Equals(name))
+                    {
+                        ret = true;
+                        SelectedOption = Options[i];
+                    }
+                }
+            }
+            return ret;
+        }
     }
 
     /// <summary>
@@ -591,9 +648,9 @@ namespace CameraExplorer
 
             foreach (dynamic i in supportedValues)
             {
-                FlashMode fm = (FlashMode)i;
+                FlashState fm = (FlashState)i;
 
-                ArrayParameterOption option = new ArrayParameterOption(fm, fm.EnumerationToParameterName<FlashMode>(), "Assets/Icons/overlay.flashmode." + fm.ToString().ToLower() + ".png");
+                ArrayParameterOption option = new ArrayParameterOption(fm, fm.EnumerationToParameterName<FlashState>(), "Assets/Icons/overlay.flashmode." + fm.ToString().ToLower() + ".png");
 
                 Options.Add(option);
 
@@ -610,7 +667,7 @@ namespace CameraExplorer
         /// <param name="option">Option to set as current value</param>
         protected override void SetOption(ArrayParameterOption option)
         {
-            Device.SetProperty(PropertyId, (FlashMode)option.Value);
+            Device.SetProperty(PropertyId, (FlashState)option.Value);
         }
 
         /// <summary>
@@ -622,7 +679,7 @@ namespace CameraExplorer
 
             foreach (ArrayParameterOption i in Options)
             {
-                if (i.Value == FlashMode.Auto)
+                if (i.Value == FlashState.Auto)
                 {
                     SelectedOption = i;
                     found = true;
@@ -737,7 +794,7 @@ namespace CameraExplorer
             {
                 WhiteBalancePreset wbp = (WhiteBalancePreset)i;
 
-                option = new ArrayParameterOption(wbp, wbp.EnumerationToParameterName<WhiteBalancePreset>(), "Assets/Icons/overlay.whitebalancepreset." + wbp.ToString().ToLower() + ".png");
+                option = new ArrayParameterOption(wbp, wbp.EnumerationToParameterName<WhiteBalancePreset>());
 
                 Options.Add(option);
 

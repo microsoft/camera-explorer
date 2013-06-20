@@ -58,16 +58,5 @@
             </ComboBox>
         </Grid>
     </Grid>
-    
-    <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar>
-            <shell:ApplicationBarIconButton x:Name="sensorButton" Text="sensor"
-                IconUri="Assets/Icons/appbar.sensor.png" Click="sensorButton_Click" IsEnabled="False"/>
-            <shell:ApplicationBarIconButton x:Name="captureButton" Text="capture"
-                IconUri="Assets/Icons/appbar.feature.camera.rest.png" Click="captureButton_Click" IsEnabled="False"/>
-            <shell:ApplicationBarIconButton x:Name="settingsButton" Text="settings"
-                IconUri="Assets/Icons/appbar.feature.settings.rest.png" Click="settingsButton_Click" IsEnabled="False"/>
-        </shell:ApplicationBar>
-    </phone:PhoneApplicationPage.ApplicationBar>
 
 </phone:PhoneApplicationPage>

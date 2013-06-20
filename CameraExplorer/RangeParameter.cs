@@ -141,12 +141,25 @@ namespace CameraExplorer
                         Device.SetProperty(_propertyId, (T)value);
 
                         NotifyPropertyChanged("Value");
+
+                        Save();
                     }
                     catch (Exception)
                     {
                         System.Diagnostics.Debug.WriteLine("Setting " + Name.ToLower() + " failed");
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Set saved value if exists, otherwise set to default.
+        /// </summary>
+        public override void SetSavedOrDefault()
+        {
+            if (!Load())
+            {
+                SetDefault();
             }
         }
     }
@@ -168,6 +181,41 @@ namespace CameraExplorer
         {
             Value = (Int32)(Minimum + (Maximum - Minimum) / 2);
         }
+
+        /// <summary>
+        /// Save parameter to application settings.
+        /// </summary>
+        public override void Save()
+        {
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                if ((Int32)DataContext.Settings[ParameterSettingName] != Value)
+                {
+                    DataContext.Settings[ParameterSettingName] = Value;
+                }
+            }
+            else
+            {
+                DataContext.Settings.Add(ParameterSettingName, Value);
+            }
+        }
+
+        /// <summary>
+        /// Load parameter from application settings.
+        /// </summary>
+        /// <returns>true if setting was loaded successfully, otherwise false.</returns>
+        public override bool Load()
+        {
+            bool ret = false;
+
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                Int32 value = (Int32)DataContext.Settings[ParameterSettingName];
+                this.Value = value;
+                ret = true;
+            }
+            return ret;
+        }
     }
 
     /// <summary>
@@ -186,6 +234,41 @@ namespace CameraExplorer
         public override void SetDefault()
         {
             Value = (UInt32)(Minimum + (Maximum - Minimum) / 2);
+        }
+
+        /// <summary>
+        /// Save parameter to application settings.
+        /// </summary>
+        public override void Save()
+        {
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                if ((UInt32)DataContext.Settings[ParameterSettingName] != Value)
+                {
+                    DataContext.Settings[ParameterSettingName] = Value;
+                }
+            }
+            else
+            {
+                DataContext.Settings.Add(ParameterSettingName, Value);
+            }
+        }
+
+        /// <summary>
+        /// Load parameter from application settings.
+        /// </summary>
+        /// <returns>true if setting was loaded successfully, otherwise false.</returns>
+        public override bool Load()
+        {
+            bool ret = false;
+
+            if (DataContext.Settings.Contains(ParameterSettingName))
+            {
+                UInt32 value = (UInt32)DataContext.Settings[ParameterSettingName];
+                this.Value = value;
+                ret = true;
+            }
+            return ret;
         }
     }
 }
