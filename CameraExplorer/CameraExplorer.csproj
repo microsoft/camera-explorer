@@ -156,16 +156,18 @@
     <Content Include="Assets\ApplicationIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\Icons\overlay.exposuretime.1.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.1000.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.125.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.15.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.1s.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.2.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.2000.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.250.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.2s.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.30.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.4.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.4000.png" />
+    <Content Include="Assets\Icons\overlay.exposuretime.4s.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.500.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.60.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.8.png" />

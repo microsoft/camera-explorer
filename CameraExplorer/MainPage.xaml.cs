@@ -44,6 +44,8 @@ namespace CameraExplorer
         private ApplicationBarIconButton _sensorButton = null;
         private ApplicationBarIconButton _captureButton = null;
         private ApplicationBarIconButton _settingsButton = null;
+        
+        private CameraSensorLocation _sensorLocation = CameraSensorLocation.Back;
 
         public MainPage()
         {
@@ -74,7 +76,7 @@ namespace CameraExplorer
             if (_dataContext.Device == null)
             {
                 ShowProgress("Initializing camera...");
-                await InitializeCamera(CameraSensorLocation.Back);
+                await InitializeCamera(_sensorLocation);
                 HideProgress();
             }
 
@@ -182,21 +184,20 @@ namespace CameraExplorer
 
             overlayComboBox.Opacity = 0;
 
-            CameraSensorLocation currentSensorLocation = _dataContext.Device.SensorLocation;
-
             _dataContext.Device.Dispose();
             _dataContext.Device = null;
 
             IReadOnlyList<CameraSensorLocation> sensorLocations = PhotoCaptureDevice.AvailableSensorLocations;
 
-            if (currentSensorLocation == sensorLocations[1])
+            if (_sensorLocation == sensorLocations[1])
             {
-                await InitializeCamera(sensorLocations[0]);
+                _sensorLocation = sensorLocations[0];
             }
             else
             {
-                await InitializeCamera(sensorLocations[1]);
+                _sensorLocation = sensorLocations[1];
             }
+            await InitializeCamera(_sensorLocation);
 
             videoBrush.RelativeTransform = new CompositeTransform()
             {

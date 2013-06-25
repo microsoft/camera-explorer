@@ -215,6 +215,9 @@ namespace CameraExplorer
             set
             {
                 if (value == null) return; // null check to avoid http://stackoverflow.com/questions/3446102
+
+                // value should not be saved when initialing the array
+                bool save = _selectedOption != null;
                     
                 if (_selectedOption != value)
                 {
@@ -233,7 +236,10 @@ namespace CameraExplorer
                         NotifyPropertyChanged("OverlaySource");
                     }
 
-                    Save();
+                    if (save)
+                    {
+                        Save();
+                    }
                 }
             }
         }
@@ -321,7 +327,7 @@ namespace CameraExplorer
         /// </summary>
         public override void Save()
         {
-            if (SelectedOption == null || SelectedOption.Value == null) return;
+            if (SelectedOption == null || SelectedOption.Name == null || SelectedOption.Name.Length <= 0) return;
 
             if (DataContext.Settings.Contains(ParameterSettingName))
             {
@@ -447,7 +453,7 @@ namespace CameraExplorer
 
             CameraCapturePropertyRange range = PhotoCaptureDevice.GetSupportedPropertyRange(Device.SensorLocation, KnownCameraPhotoProperties.ExposureTime);
             object value = Device.GetProperty(PropertyId);
-            UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2, 1 };
+            UInt32[] standardValues = { /* 16000, 8000, 4000,*/ 2000, 1000, 500, 250, 125, 60, 30, 15, 8, 4, 2 };
 
             UInt32 min = (UInt32)range.Min;
             UInt32 max = (UInt32)range.Max;
@@ -467,6 +473,22 @@ namespace CameraExplorer
                         selectedOption = option;
                     }
                 }
+            }
+
+            // Expsoure times of 1 second and over are possible in some devices.
+            UInt32 microseconds = 1000000; // second in microseconds
+            while (microseconds <= max)
+            {
+                UInt32 usecs = microseconds / 1000000;
+                option = new ArrayParameterOption(microseconds, usecs.ToString() + " s", "Assets/Icons/overlay.exposuretime." + usecs.ToString() + "s.png");
+
+                Options.Add(option);
+
+                if (selectedOption == null && usecs.Equals(value))
+                {
+                    selectedOption = option;
+                }
+                microseconds *= 2;
             }
 
             SelectedOption = selectedOption;

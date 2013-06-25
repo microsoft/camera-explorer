@@ -95,6 +95,12 @@ namespace CameraExplorer
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            CameraExplorer.DataContext d = CameraExplorer.DataContext.Singleton;
+            if (d.Device != null)
+            {
+                d.Device.Dispose();
+                d.Device = null;
+            }
         }
 
         // Code to execute if a navigation fails
