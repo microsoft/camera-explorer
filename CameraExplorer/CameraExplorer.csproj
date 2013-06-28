@@ -147,7 +147,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Icons\appbar.refresh.rest.png" />
     <Content Include="Assets\Icons\appbar.feature.camera.rest.png" />
     <Content Include="Assets\Icons\appbar.feature.settings.rest.png" />
     <Content Include="Assets\Icons\overlay.exposuretime.16000.png" />

@@ -70,9 +70,10 @@
     </Grid>
 
     <phone:PhoneApplicationPage.ApplicationBar>
-        <shell:ApplicationBar IsVisible="True">
-            <shell:ApplicationBarIconButton x:Name="resetButton" Text="reset"
-                IconUri="Assets/Icons/appbar.refresh.rest.png" Click="resetButton_Click"/>
+        <shell:ApplicationBar IsVisible="True" Mode="Minimized">
+            <shell:ApplicationBar.MenuItems>
+                <shell:ApplicationBarMenuItem x:Name="resetMenuItem" Text="reset" Click="resetItem_Click"/>
+            </shell:ApplicationBar.MenuItems>
         </shell:ApplicationBar>
     </phone:PhoneApplicationPage.ApplicationBar>
 </phone:PhoneApplicationPage>

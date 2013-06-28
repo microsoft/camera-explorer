@@ -55,7 +55,7 @@ namespace CameraExplorer
         /// <summary>
         /// Clicking on the reset button causes SetDefault to be called on all parameter instances.
         /// </summary>
-        private void resetButton_Click(object sender, EventArgs e)
+        private void resetItem_Click(object sender, EventArgs e)
         {
             SetScreenButtonsEnabled(false);
 
