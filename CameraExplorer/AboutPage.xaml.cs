@@ -32,11 +32,6 @@ namespace MapExplorer
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
-            if (_dataContext.Device == null)
-            {
-                NavigationService.GoBack();
-            }
-
             base.OnNavigatedTo(e);
         }
     }

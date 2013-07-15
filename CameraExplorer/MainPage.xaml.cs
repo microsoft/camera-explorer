@@ -47,6 +47,9 @@ namespace CameraExplorer
         
         private CameraSensorLocation _sensorLocation = CameraSensorLocation.Back;
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public MainPage()
         {
             InitializeComponent();
@@ -73,6 +76,8 @@ namespace CameraExplorer
         /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Debug.WriteLine("MainPage.OnNavigatedTo()");
+
             if (_dataContext.Device == null)
             {
                 ShowProgress("Initializing camera...");
@@ -105,10 +110,13 @@ namespace CameraExplorer
         /// </summary>
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
-            // release camera as soon as no longer needed in order to avoid green bitmap bug
-            // fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
-            if ((_dataContext.Device != null) && e.Uri.ToString().Contains("PreviewPage.xaml"))
+            /* Release camera as soon as no longer needed in order to avoid green bitmap bug
+             * fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
+             * If the page to navigate to is the settings page, we keep the camera alive.
+             */
+            if (_dataContext.Device != null && !e.Uri.ToString().Contains("SettingsPage.xaml"))
             {
+                Debug.WriteLine("MainPage.OnNavigatingFrom(): Releasing camera.");
                 _dataContext.Device.Dispose();
                 _dataContext.Device = null;
             }
@@ -197,6 +205,7 @@ namespace CameraExplorer
             {
                 _sensorLocation = sensorLocations[1];
             }
+
             await InitializeCamera(_sensorLocation);
 
             videoBrush.RelativeTransform = new CompositeTransform()
@@ -248,6 +257,7 @@ namespace CameraExplorer
         private async void videoCanvas_Tap(object sender, GestureEventArgs e)
         {
             System.Windows.Point uiTapPoint = e.GetPosition(VideoCanvas);
+
             if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation) && _focusSemaphore.WaitOne(0))
             {
                 // Get tap coordinates as a foundation point
@@ -278,6 +288,7 @@ namespace CameraExplorer
                 FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Visible);
 
                 CameraFocusStatus status = await _dataContext.Device.FocusAsync();
+
                 if (status == CameraFocusStatus.Locked)
                 {
                     FocusIndicator.SetValue(Shape.StrokeProperty, _focusedBrush);
@@ -290,6 +301,7 @@ namespace CameraExplorer
                     _manuallyFocused = false;
                     _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
                 }
+
                 _focusSemaphore.Release();
             }
         }
@@ -383,10 +395,12 @@ namespace CameraExplorer
             }
 			
             _manuallyFocused = false;
+
             if (PhotoCaptureDevice.IsFocusRegionSupported(_dataContext.Device.SensorLocation))
             {
                 _dataContext.Device.FocusRegion = null;
             }
+
             FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
             _dataContext.Device.SetProperty(KnownCameraPhotoProperties.LockedAutoFocusParameters, AutoFocusParameters.None);
 
@@ -405,6 +419,7 @@ namespace CameraExplorer
             {
                 _manuallyFocused = false;
             }
+
             FocusIndicator.SetValue(Canvas.VisibilityProperty, Visibility.Collapsed);
             await AutoFocus();
         }
