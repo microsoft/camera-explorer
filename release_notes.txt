@@ -1,5 +1,5 @@
-Camera Explorer v1.3
-====================
+Camera Explorer
+===============
 
 Camera Explorer application demonstrates the use of the new advanced
 Windows Phone 8 camera API, the Windows.Phone.Media.Capture.PhotoCaptureDevice
@@ -18,6 +18,8 @@ For more information on implementation and porting, visit the wiki pages:
 
 What's new
 ----------
+
+Version 1.3.1.0: Minor bug fixes.
 
 Version 1.3.0.0: Support for devices without front camera, flash setting fixed,
                  half-pressing camera key now reactivates auto-focus after tap-
@@ -150,6 +152,7 @@ describes the usage of PhotoCaptureDevice properties in more detail.
 8. Version history
 -------------------------------------------------------------------------------
 
+1.3.1.0 Minor bug fixes.
 1.3.0.0 Support for devices without front camera, flash setting fixed,
         half-pressing camera key now reactivates auto-focus after tap-to-focus,
         settings (for each sensor) are now persistent.
