@@ -32,6 +32,11 @@ namespace CameraExplorer
     /// </summary>
     public partial class MainPage : PhoneApplicationPage
     {
+        // Constants
+        private readonly Windows.Foundation.Size DefaultCameraResolution =
+            new Windows.Foundation.Size(640, 480);
+
+        // Members
         private CameraExplorer.DataContext _dataContext = CameraExplorer.DataContext.Singleton;
         private ProgressIndicator _progressIndicator = new ProgressIndicator();
         private bool _capturing = false;
@@ -329,21 +334,39 @@ namespace CameraExplorer
         }
 
         /// <summary>
-        /// Initializes camera. Once initialized the instance is set to the DataContext.Device property
-        /// for further usage from this or other pages.
+        /// Initializes camera. Once initialized the instance is set to the
+        /// DataContext.Device property for further usage from this or other
+        /// pages.
         /// </summary>
-        /// <param name="sensorLocation">Camera sensor to initialize</param>
+        /// <param name="sensorLocation">Camera sensor to initialize.</param>
         private async Task InitializeCamera(CameraSensorLocation sensorLocation)
         {
-            Windows.Foundation.Size initialResolution = new Windows.Foundation.Size(640, 480);
+            // Find out the largest capture resolution available on device
+            IReadOnlyList<Windows.Foundation.Size> availableResolutions =
+                PhotoCaptureDevice.GetAvailableCaptureResolutions(sensorLocation);
 
-            PhotoCaptureDevice d = await PhotoCaptureDevice.OpenAsync(sensorLocation, initialResolution);
+            Windows.Foundation.Size captureResolution = new Windows.Foundation.Size(0, 0);
 
-            d.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation,
-                          d.SensorLocation == CameraSensorLocation.Back ?
-                          d.SensorRotationInDegrees : - d.SensorRotationInDegrees);
+            for (int i = 0; i < availableResolutions.Count; ++i)
+            {
+                if (captureResolution.Width < availableResolutions[i].Width)
+                {
+                    Debug.WriteLine("MainPage.InitializeCamera(): New capture resolution: " + availableResolutions[i]);
+                    captureResolution = availableResolutions[i];
+                }
+            }
 
-            _dataContext.Device = d;
+            PhotoCaptureDevice device =
+                await PhotoCaptureDevice.OpenAsync(sensorLocation, DefaultCameraResolution);
+
+            await device.SetPreviewResolutionAsync(DefaultCameraResolution);
+            await device.SetCaptureResolutionAsync(captureResolution);
+
+            device.SetProperty(KnownCameraGeneralProperties.EncodeWithOrientation,
+                          device.SensorLocation == CameraSensorLocation.Back ?
+                          device.SensorRotationInDegrees : - device.SensorRotationInDegrees);
+
+            _dataContext.Device = device;
         }
 
         /// <summary>
