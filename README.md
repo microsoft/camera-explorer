@@ -19,11 +19,10 @@ For more information on implementation and porting, visit the wiki pages:
 What's new
 ----------
 
-Version 1.3.1.0: Minor bug fixes.
-
-Version 1.3.0.0: Support for devices without front camera, flash setting fixed,
-                 half-pressing camera key now reactivates auto-focus after tap-
-                 to-focus, settings (for each sensor) are now persistent.
+* Version 1.3.1.0: Minor bug fixes.
+* Version 1.3.0.0: Support for devices without front camera, flash setting
+fixed, half-pressing camera key now reactivates auto-focus after tap-to-focus,
+settings (for each sensor) are now persistent.
 
 
 1. Usage
@@ -62,25 +61,20 @@ camera features by trying out the application.
 3.2 Important files and classes
 -------------------------------
 
-| File                           | Description                                |
-|--------------------------------|--------------------------------------------|
-| MainPage.xaml(.cs)             | The main page with viewfinder and overlays.|
-|                                |                                            |
-|--------------------------------|--------------------------------------------|
-| SettingsPage.xaml(.cs)         | The page that is used to modify camera     |
-|                                | parameters.                                |
-|--------------------------------|--------------------------------------------|
-| Parameter.cs                   | Implementations for binding                |
-| RangeParameter.cs              | PhotoCameraDevice API properties to XAML   |
-| ArrayParameter.cs              | controls in the SettingsPage UI.           |
-|--------------------------------|--------------------------------------------|
+| File | Description |
+| ---- | ----------- |
+| MainPage.xaml(.cs) | The main page with viewfinder and overlays. |
+| SettingsPage.xaml(.cs) | The page that is used to modify camera parameters. |
+| Parameter.cs | Implementations for binding. |
+| RangeParameter.cs | PhotoCameraDevice API properties to XAML. |
+| ArrayParameter.cs | controls in the SettingsPage UI. |
 
 
 3.3 Used APIs/Windows Phone Components
 --------------------------------------
 
-using System.Windows.Media.Imaging;
-using Windows.Phone.Media.Capture;
+* System.Windows.Media.Imaging
+* Windows.Phone.Media.Capture
 
 
 4. Compatibility
@@ -112,8 +106,9 @@ None.
 ----------------
 
 Make sure you have the following installed:
- * Windows 8
- * Windows Phone SDK 8.0
+
+* Windows 8
+* Windows Phone SDK 8.0
 
 
 5.2 Using the WINDOWS PHONE 8 SDK
@@ -152,10 +147,10 @@ describes the usage of PhotoCaptureDevice properties in more detail.
 8. Version history
 -------------------------------------------------------------------------------
 
-1.3.1.0 Minor bug fixes.
-1.3.0.0 Support for devices without front camera, flash setting fixed,
-        half-pressing camera key now reactivates auto-focus after tap-to-focus,
-        settings (for each sensor) are now persistent.
-1.2.0.0 Bug fix to tap-to-focus (Ticket #5)
-1.1.0.0 Tap-to-focus and Lens Picker integration added.
-1.0.0.0 First release
+* 1.3.1.0 Minor bug fixes.
+* 1.3.0.0 Support for devices without front camera, flash setting fixed,
+half-pressing camera key now reactivates auto-focus after tap-to-focus,
+settings (for each sensor) are now persistent.
+* 1.2.0.0 Bug fix to tap-to-focus (Ticket #5)
+* 1.1.0.0 Tap-to-focus and Lens Picker integration added.
+* 1.0.0.0 First release
