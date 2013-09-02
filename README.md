@@ -9,11 +9,11 @@ application adds tap-to-focus and Lens Picker integration.
 The example has been developed with Silverlight for Windows Phone devices
 and tested to work on Nokia Lumia devices with Windows Phone 8.
 
-This example application is hosted in Nokia Developer Projects:
-- https://projects.developer.nokia.com/cameraexplorer
+This example application is hosted in GitHub:
+https://github.com/nokia-developer/camera-explorer
 
 For more information on implementation and porting, visit the wiki pages:
-- https://projects.developer.nokia.com/cameraexplorer/wiki
+https://github.com/nokia-developer/camera-explorer/wiki
 
 
 What's new
@@ -21,8 +21,8 @@ What's new
 
 * Version 1.3.1.0: Minor bug fixes.
 * Version 1.3.0.0: Support for devices without front camera, flash setting
-fixed, half-pressing camera key now reactivates auto-focus after tap-to-focus,
-settings (for each sensor) are now persistent.
+  fixed, half-pressing camera key now reactivates auto-focus after tap-to-focus,
+  settings (for each sensor) are now persistent.
 
 
 1. Usage
@@ -35,9 +35,9 @@ camera features by trying out the application.
 2. Prerequisites
 -------------------------------------------------------------------------------
 
-- C# basics
-- Windows 8
-- Development environment Microsoft Visual Studio Express for Windows Phone 2012
+* C# basics
+* Windows 8
+* Development environment Microsoft Visual Studio Express for Windows Phone 2012
 
 
 3. Project structure and implementation
@@ -46,16 +46,12 @@ camera features by trying out the application.
 3.1 Folders
 -----------
 
- |                  The root folder contains the project file, the license 
- |                  information and this file (release_notes.txt).
- |
- |- CameraExplorer  Root folder for the implementation files.
- |  |
- |  |- Assets       Graphic assets like icons and tiles.
- |  |
- |  |- Properties   Application property files.
- |  |
- |  |- Resources    Application resources.
+* The root folder contains the project file, the license information and this
+  file (release_notes.txt).
+* `CameraExplorer`: Root folder for the implementation files.
+ * `Assets`: Graphic assets like icons and tiles.
+ * `Properties`: Application property files.
+ * `Resources`: Application resources.
 
 
 3.2 Important files and classes
@@ -80,7 +76,7 @@ camera features by trying out the application.
 4. Compatibility
 -------------------------------------------------------------------------------
 
-- Windows Phone 8
+* Windows Phone 8
 
 Tested to work on Nokia Lumia 520, Nokia Lumia 820, and Nokia Lumia 920. 
 Developed with Microsoft Visual Studio Express for Windows Phone 2012.
@@ -89,8 +85,8 @@ Developed with Microsoft Visual Studio Express for Windows Phone 2012.
 4.1 Required Capabilities
 -------------------------
 
-ID_CAP_ISV_CAMERA
-ID_CAP_MEDIALIB_PHOTO
+* `ID_CAP_ISV_CAMERA`
+* `ID_CAP_MEDIALIB_PHOTO`
 
 
 4.2 Known Issues
@@ -133,7 +129,7 @@ http://msdn.microsoft.com/en-us/library/gg588378%28v=vs.92%29.aspx
 
 See the license text file delivered with this project. The license file is also
 available online at 
-https://projects.developer.nokia.com/cameraexplorer/browser/cameraexplorer/Licence.txt
+https://github.com/nokia-developer/camera-explorer/blob/master/Licence.txt
 
 
 7. Related documentation
@@ -149,8 +145,8 @@ describes the usage of PhotoCaptureDevice properties in more detail.
 
 * 1.3.1.0 Minor bug fixes.
 * 1.3.0.0 Support for devices without front camera, flash setting fixed,
-half-pressing camera key now reactivates auto-focus after tap-to-focus,
-settings (for each sensor) are now persistent.
+  half-pressing camera key now reactivates auto-focus after tap-to-focus,
+  settings (for each sensor) are now persistent.
 * 1.2.0.0 Bug fix to tap-to-focus (Ticket #5)
 * 1.1.0.0 Tap-to-focus and Lens Picker integration added.
 * 1.0.0.0 First release
