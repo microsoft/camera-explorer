@@ -11,6 +11,7 @@ using Microsoft.Phone.Info;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Windows.Phone.Media.Capture;
 
@@ -400,24 +401,6 @@ namespace CameraExplorer
                     SelectedOption = option;
                 }
             }
-        }
-
-        /// <summary>
-        /// The API response on querying whether the AutoFocusRange parameter is supported
-        /// cannot be trusted on HTC devices at least, see http://bit.ly/11Midmq
-        /// Until further notice we call the base Refresh implementation only for Nokia devices
-        /// and asume the feature not to be supported on the other.
-        /// </summary>
-        public override void Refresh()
-        {
-            if (!DeviceStatus.DeviceManufacturer.Contains("Nokia"))
-            {
-                Supported = false;
-                Modifiable = false;
-                return;
-            }
-
-            base.Refresh();
         }
 
         /// <summary>
@@ -899,6 +882,24 @@ namespace CameraExplorer
                     SelectedOption = option;
                 }
             }
+        }
+
+        /// <summary>
+        /// The API response on querying whether the AutoFocusRange parameter is supported
+        /// cannot be trusted on HTC devices at least, see http://bit.ly/11Midmq
+        /// Until further notice we call the base Refresh implementation only for Nokia devices
+        /// and asume the feature not to be supported on the other.
+        /// </summary>
+        public override void Refresh()
+        {
+            if (CultureInfo.InvariantCulture.CompareInfo.IndexOf(DeviceStatus.DeviceManufacturer, "Nokia", CompareOptions.IgnoreCase) == -1)
+            {
+                Supported = false;
+                Modifiable = false;
+                return;
+            }
+
+            base.Refresh();
         }
 
         /// <summary>

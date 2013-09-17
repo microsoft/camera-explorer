@@ -12,8 +12,9 @@ and tested to work on Nokia Lumia devices with Windows Phone 8.
 This example application is hosted in GitHub:
 https://github.com/nokia-developer/camera-explorer
 
-For more information on implementation and porting, visit the wiki pages:
-https://github.com/nokia-developer/camera-explorer/wiki
+For more information on implementation and porting, visit Nokia Lumia
+Developer's Library:
+http://developer.nokia.com/Resources/Library/Lumia/#!imaging/advanced-photo-capturing/camera-explorer.html
 
 
 What's new
