@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright © 2012-2013 Nokia Corporation. All rights reserved.
- * Nokia and Nokia Connecting People are registered trademarks of Nokia Corporation. 
- * Other product and company names mentioned herein may be trademarks
- * or trade names of their respective owners. 
+ * Copyright © 2012-2014 Microsoft Mobile Oy. All rights reserved.
+ * 
  * See LICENSE.TXT for license information.
  */
 
@@ -34,7 +32,8 @@ namespace CameraExplorer
         /// <param name="item">Parameter instance</param>
         public DataTemplate SelectTemplate(object item)
         {
-            if ((item as Parameter).OverlaySource != null)
+            var parameter = item as Parameter;
+            if (parameter != null && parameter.OverlaySource != null)
             {
                 return ParameterWithOverlayTemplate;
             }

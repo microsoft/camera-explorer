@@ -1,8 +1,6 @@
 ﻿/*
- * Copyright © 2012-2013 Nokia Corporation. All rights reserved.
- * Nokia and Nokia Connecting People are registered trademarks of Nokia Corporation. 
- * Other product and company names mentioned herein may be trademarks
- * or trade names of their respective owners. 
+ * Copyright © 2012-2014 Microsoft Mobile Oy. All rights reserved.
+ * 
  * See LICENSE.TXT for license information.
  */
 
@@ -66,9 +64,7 @@ namespace CameraExplorer
             _progressIndicator.IsIndeterminate = true;
 
             CreateAppBar();
-            ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem();
-            menuItem.Text = "about";
-            menuItem.IsEnabled = false;
+            ApplicationBarMenuItem menuItem = new ApplicationBarMenuItem {Text = "about", IsEnabled = false};
             ApplicationBar.MenuItems.Add(menuItem);
             menuItem.Click += new EventHandler(aboutMenuItem_Click);
         }
@@ -94,7 +90,7 @@ namespace CameraExplorer
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
+                Rotation = _dataContext.Device != null && _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
                            _dataContext.Device.SensorRotationInDegrees :
                          - _dataContext.Device.SensorRotationInDegrees
             };
@@ -217,7 +213,7 @@ namespace CameraExplorer
             {
                 CenterX = 0.5,
                 CenterY = 0.5,
-                Rotation = _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
+                Rotation = _dataContext.Device != null && _dataContext.Device.SensorLocation == CameraSensorLocation.Back ?
                            _dataContext.Device.SensorRotationInDegrees :
                          - _dataContext.Device.SensorRotationInDegrees
             };
