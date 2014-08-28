@@ -1,0 +1,59 @@
+﻿<Page
+    x:Class="CameraExplorer.CameraSettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CameraExplorer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.Resources>
+            <local:EncodingConverter x:Key="EncodingConverter" />
+            <local:VisibilityConverter x:Key="VisibilityConverter" />
+            <local:InverseConverter x:Key="InverseConverter" />            
+        </Grid.Resources>
+        
+        <ScrollViewer>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="100" />                    
+                </Grid.ColumnDefinitions>
+                
+                <ComboBox Grid.Row="0" Header="Resolution" ItemsSource="{Binding Encodings, Converter={StaticResource EncodingConverter}}" SelectedItem="{Binding Settings.Encoding, Mode=TwoWay, Converter={StaticResource EncodingConverter}}"/>
+                <ComboBox Grid.Row="1" Header="Scene mode" ItemsSource="{Binding CaptureSceneModes}" SelectedItem="{Binding Settings.CaptureSceneMode, Mode=TwoWay}"/>
+                <ComboBox Grid.Row="2" Header="White balance" ItemsSource="{Binding ColorTemperaturePresets}" SelectedItem="{Binding Settings.ColorTemperaturePreset, Mode=TwoWay}" Visibility="{Binding ColorTemperatureSupported, Converter={StaticResource VisibilityConverter}}"/>
+                <ComboBox Grid.Row="3" Header="ISO Speed" ItemsSource="{Binding IsoSpeedPresets}" SelectedItem="{Binding Settings.IsoSpeedPreset, Mode=TwoWay}" Visibility="{Binding IsoSpeedSupported, Converter={StaticResource VisibilityConverter}}"/>
+                <!--<ComboBox Header="Exposure time" ItemsSource="{Binding ExposureTimePresets}" SelectedItem="{Binding Settings.ExposureTimePreset, Mode=TwoWay}" Visibility="{Binding ExposureTimeSupported, Converter={StaticResource VisibilityConverter}}"/>-->
+                <Slider Grid.Row="4" x:Name="ExposureTimeSlider" Header="Exposure time" Minimum="{Binding ExposureTimeControl.Min}" Maximum="{Binding ExposureTimeControl.Max}" Value="{Binding Settings.ExposureTime, Mode=TwoWay}" Visibility="{Binding ExposureTimeSupported, Converter={StaticResource VisibilityConverter}}"></Slider>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,12,0">
+                    <TextBlock Text="{Binding Settings.ExposureTime}"/>
+                    <TextBlock Text="ms"/>
+                </StackPanel>
+                <CheckBox Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" IsChecked="{Binding Settings.AutoExposureEnabled, Mode=TwoWay}">Auto</CheckBox>
+                <!--<Slider x:Name="ExposureCompensationSlider" Header="Exposure compensation" Minimum="{Binding ExposureCompensationControl.Min}" Maximum="{Binding ExposureCompensationControl.Max}" Value="{Binding Settings.ExposureCompensation, Mode=TwoWay}" Visibility="{Binding ExposureCompensationSupported, Converter={StaticResource VisibilityConverter}}"></Slider>-->
+                <Slider Grid.Row="5" x:Name="ExposureCompensationSlider" Header="Exposure compensation" Value="{Binding Settings.ExposureCompensation, Mode=TwoWay}" Visibility="{Binding ExposureCompensationSupported, Converter={StaticResource VisibilityConverter}}"></Slider>
+                <!--<Slider Grid.Row="6"  Header="Hue" Minimum="{Binding HueControl.Min}" Maximum="{Binding HueControl.Max}" Value="{Binding Settings.Hue, Mode=TwoWay}" Visibility="{Binding HueSupported, Converter={StaticResource VisibilityConverter}}"></Slider>-->
+                <Slider Grid.Row="7" Header="Focus range" IsEnabled="{Binding Settings.AutoFocusEnabled, Converter={StaticResource InverseConverter}}" Minimum="{Binding FocusRangeControl.Min}" Maximum="{Binding FocusRangeControl.Max}" Value="{Binding Settings.FocusRange, Mode=TwoWay}" Visibility="{Binding FocusSupported, Converter={StaticResource VisibilityConverter}}"></Slider>
+                <ComboBox Visibility="Collapsed" Grid.Row="7" Grid.Column="2" ItemsSource="{Binding FocusModes}" SelectedItem="{Binding Settings.FocusMode, Mode=TwoWay}"></ComboBox>
+                <Slider Grid.Row="9" Header="Zoom" Minimum="{Binding ZoomControl.Min}" Maximum="{Binding ZoomControl.Max}" Value="{Binding Settings.Zoom, Mode=TwoWay}" Visibility="{Binding ZoomSupported, Converter={StaticResource VisibilityConverter}}"></Slider>
+            </Grid>
+            
+        </ScrollViewer>
+    </Grid>
+</Page>

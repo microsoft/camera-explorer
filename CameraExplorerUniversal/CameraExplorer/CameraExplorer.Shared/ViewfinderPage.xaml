@@ -1,0 +1,51 @@
+﻿<Page
+    x:Class="CameraExplorer.ViewfinderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:CameraExplorer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Canvas x:Name="ViewFinderCanvas" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <CaptureElement x:Name="ViewFinder" ManipulationMode="Scale"  ManipulationDelta="ViewFinder_ManipulationDelta" PointerPressed="ViewFinder_PointerPressed" PointerReleased="ViewFinder_PointerReleased"/>
+
+        <Grid x:Name="SettingsGrid" Canvas.ZIndex="3" Width="500" Height="400">
+
+            <Grid.Resources>
+                <local:VisibilityConverter x:Key="VisibilityConverter" />
+            </Grid.Resources>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Button x:Name="CaptureButton" Grid.RowSpan="4" Grid.Row="0" Grid.Column="1" Click="CaptureButton_Click" HorizontalAlignment="Right">
+                <TextBlock Text="Capture"/>
+            </Button>
+
+            <Image Grid.Row="0" x:Name="CapturedImage" Width="100" Height="100" Tapped="CapturedImage_Tapped"></Image>
+            <Button Grid.Row="1" x:Name="CameraDeviceButton" Click="CameraDeviceButton_Click">
+                <TextBlock Text="Device"/>
+            </Button>
+            <Button Grid.Row="2" x:Name="SettingsButton" Click="SettingsButton_Click">
+                <TextBlock Text="Settings"/>
+            </Button>
+            <Button Grid.Row="3" x:Name="FlashButton" Click="FlashButton_Click" Visibility="{Binding FlashSupported, Converter={StaticResource VisibilityConverter}}">
+                <TextBlock Text="{Binding Settings.FlashMode}" />
+            </Button>            
+                
+        </Grid>
+
+        <Border x:Name="FocusReticle" Canvas.ZIndex="2" BorderBrush="White" BorderThickness="2" Visibility="Collapsed" Width="100" Height="100"/>
+        
+    </Canvas>
+
+</Page>
