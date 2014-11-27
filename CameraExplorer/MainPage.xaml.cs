@@ -1,7 +1,6 @@
 ﻿/*
- * Copyright © 2012-2014 Microsoft Mobile Oy. All rights reserved.
- * 
- * See LICENSE.TXT for license information.
+ * Copyright (c) 2012-2014 Microsoft Mobile. All rights reserved.
+ * See the license file delivered with this project for more information.
  */
 
 using Microsoft.Devices;
@@ -112,7 +111,6 @@ namespace CameraExplorer
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)
         {
             /* Release camera as soon as no longer needed in order to avoid green bitmap bug
-             * fix for https://projects.developer.nokia.com/cameraexplorer/ticket/6
              * If the page to navigate to is the settings page, we keep the camera alive.
              */
             if (_dataContext.Device != null && !e.Uri.ToString().Contains("SettingsPage.xaml"))

@@ -1,9 +1,6 @@
 ﻿<!--
-/*
- * Copyright © 2012-2014 Microsoft Mobile Oy. All rights reserved.
- * 
- * See LICENSE.TXT for license information.
- */
+    Copyright (c) 2012-2014 Microsoft Mobile. All rights reserved.
+    See the license file delivered with this project for more information.
 -->
     
 <phone:PhoneApplicationPage
@@ -37,7 +34,7 @@
                 <TextBlock Margin="12,0,12,0" Text="Version"/>
                 <TextBlock x:Name="versionTextBox" Margin="12,0,12,0" Text="Version"/>
             </StackPanel>
-            <TextBlock Margin="12,10,12,0" Text="Camera Explorer application is a Nokia Developer example demonstrating the use of the advanced camera APIs of Windows Phone 8." TextWrapping="Wrap"/>
+            <TextBlock Margin="12,10,12,0" Text="Camera Explorer application is an example demonstrating the use of the advanced camera APIs of Windows Phone 8." TextWrapping="Wrap"/>
             <TextBlock Margin="12,10,12,0" Text="Developed and published by Microsoft Mobile. All rights reserved." TextWrapping="Wrap"/>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="12,10,0,0" Text="Learn more at"/>

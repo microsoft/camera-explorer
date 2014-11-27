@@ -10,7 +10,7 @@ The example has been developed with Silverlight for Windows Phone devices
 and tested to work on Nokia Lumia devices with Windows Phone 8.
 
 This example application is hosted in GitHub:
-https://github.com/nokia-developer/camera-explorer
+https://github.com/Microsoft/camera-explorer
 
 For more information on implementation and porting, visit Nokia Lumia
 Developer's Library:
@@ -85,7 +85,7 @@ http://msdn.microsoft.com/en-us/library/gg588378%28v=vs.92%29.aspx
 
 See the license text file delivered with this project. The license file is also
 available online at 
-https://github.com/nokia-developer/camera-explorer/blob/master/Licence.txt
+https://github.com/Microsoft/camera-explorer/blob/master/Licence.txt
 
 
 4. Related documentation

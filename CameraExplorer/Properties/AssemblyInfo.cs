@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CameraExplorer")]
-[assembly: AssemblyCopyright("Copyright © 2012-2013 Nokia Corporation.")]
+[assembly: AssemblyCopyright("Copyright © 2012-2014 Microsoft Mobile.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
