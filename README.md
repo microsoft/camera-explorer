@@ -12,7 +12,7 @@ and tested to work on Nokia Lumia devices with Windows Phone 8.
 This example application is hosted in GitHub:
 https://github.com/Microsoft/camera-explorer
 
-For more information on implementation and porting, visit Nokia Lumia
+For more information on implementation and porting, visit Lumia
 Developer's Library:
 http://developer.nokia.com/Resources/Library/Lumia/#!imaging/advanced-photo-capturing/camera-explorer.html
 
@@ -91,7 +91,7 @@ https://github.com/Microsoft/camera-explorer/blob/master/Licence.txt
 4. Related documentation
 -------------------------------------------------------------------------------
 
-An article "Advanced Photo Capturing" published on Nokia Lumia Developer's Library
+An article "Advanced Photo Capturing" published on Lumia Developer's Library
 (http://www.developer.nokia.com/Resources/Library/Lumia/#!advanced-photo-capturing.html) 
 describes the usage of PhotoCaptureDevice properties in more detail.
 
