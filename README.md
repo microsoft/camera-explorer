@@ -3,7 +3,7 @@ Camera Explorer
 
 Camera Explorer application demonstrates the use of the new advanced
 Windows Phone 8 camera API, the Windows.Phone.Media.Capture.PhotoCaptureDevice
-and the related classes and enumerations on Nokia Lumia devices. The updated 
+and the related classes and enumerations on Lumia devices. The updated 
 application adds tap-to-focus and Lens Picker integration.
 
 The example has been developed with Silverlight for Windows Phone devices
